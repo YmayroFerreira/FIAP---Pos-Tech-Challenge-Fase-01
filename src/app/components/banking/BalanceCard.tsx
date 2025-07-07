@@ -1,14 +1,14 @@
 export default function BalanceCard() {
   return (
-    <div className="bg-gradient-bb text-white p-4 flex justify-end items-center gap-3">
-      <div>
-        <span>Olá, Username</span>
-        <span>Quinta-feira, 08/07/2025</span>
+    <div className="bg-gradient-bb text-white p-4 w-full md:w-3/4 lg:w-1/2 min-h-100">
+      <div className="flex flex-col items-start">
+        <p>Olá, Username :)</p>
+        <p>Quinta-feira, 08/07/2025</p>
       </div>
-      <div>
-        <span>Saldo ICONE</span>
-        <span>Conta Corrente</span>
-        <span>R$ 2.500,00</span>
+      <div className="flex flex-col items-end">
+        <p>Saldo ICONE</p>
+        <p>Conta Corrente</p>
+        <p>R$ 2.500,00</p>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ export default function GlobalHeader() {
       <Image
         className="pr-3"
         src="/user-icon.svg"
-        alt="Next.js logo"
+        alt="User Icon"
         width={40}
         height={40}
         priority
