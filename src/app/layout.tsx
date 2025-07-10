@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import GlobalHeader from "@/app/components/global/Header";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,8 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`bg-bb-emerald ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="mb-8">
+          <GlobalHeader />
+        </div>
+
         {children}
       </body>
     </html>
