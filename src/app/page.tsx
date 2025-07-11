@@ -1,16 +1,21 @@
 import BalanceCard from "./components/banking/BalanceCard";
+import Statement from "./components/banking/Statement";
 
 export default function Home() {
   return (
-    <div>
-      <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <aside className="col-span-full md:col-span-2">
         <div>SIDEBAR</div>
+      </aside>
+      <main className="col-span-full md:col-span-7">
         <div>
           <BalanceCard />
           <div>Nova transação</div>
         </div>
-        <div>Extrato</div>
       </main>
+      <div className="col-span-full md:col-span-3">
+        <Statement />
+      </div>
     </div>
   );
 }
