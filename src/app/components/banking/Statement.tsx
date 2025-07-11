@@ -29,7 +29,7 @@ export default function Statement() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md w-full max-w-sm">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
       {" "}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-bb-black">Extrato</h2>
