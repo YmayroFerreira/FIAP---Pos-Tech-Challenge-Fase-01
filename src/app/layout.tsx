@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import GlobalHeader from "@/app/components/global/Header";
 
 import "./globals.css";
+import { StatementProvider } from "@/context/statementContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,7 @@ export default function RootLayout({
         <div className="mb-8">
           <GlobalHeader />
         </div>
-
-        {children}
+        <StatementProvider>{children}</StatementProvider>
       </body>
     </html>
   );
