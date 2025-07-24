@@ -17,7 +17,7 @@ export default function BalanceCard() {
         <p className="text-base">Quinta-feira, 08/07/2025</p>
       </div>
       <div className="flex flex-col items-end">
-        <p className="w-full">
+        <p>
           Saldo
           <BalanceIcon
             className="size-6 text-bb-red"
