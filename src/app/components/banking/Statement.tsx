@@ -3,6 +3,7 @@
 import React from "react";
 import { mockTransactions } from "../../../../utils/mockData";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
 
 export default function Statement() {
   const formatDate = (dateString: string) => {
@@ -29,17 +30,12 @@ export default function Statement() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full">
       {" "}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-bb-black">Extrato</h2>
         <div className="flex space-x-2">
-          <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
-            <PencilIcon className="size-5 text-bb-white" />
-          </div>
-          <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
-            <TrashIcon className="size-5 text-bb-white" />
-          </div>
+          <Link href="/transactions"> ver todos </Link>
         </div>
       </div>
       {mockTransactions.length === 0 ? (
@@ -66,6 +62,17 @@ export default function Statement() {
                     <p className="text-bb-light-grey mt-0.5">
                       {formatDate(transaction.date)}
                     </p>
+
+
+                    <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
+                      <PencilIcon className="size-5 text-bb-white" />
+                    </div>
+                    <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
+                      <TrashIcon className="size-5 text-bb-white" />
+                    </div>
+
+
+
                   </div>
                 </div>
                 {/* Valor */}
