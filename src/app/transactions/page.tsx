@@ -4,7 +4,9 @@ export default function Transactions() {
   return (
     <div>
       <main>
-        <Statement></Statement>
+        <div className="px-64">
+          <Statement></Statement>
+        </div>
       </main>
     </div>
   )

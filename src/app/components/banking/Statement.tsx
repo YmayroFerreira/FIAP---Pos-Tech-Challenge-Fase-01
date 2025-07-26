@@ -29,6 +29,18 @@ export default function Statement() {
     }).format(amount);
   };
 
+
+  const handleDelete = async (id: number) => {
+    const isConfirmed = confirm("Tem certeza que deseja excluir este item?")
+    if (isConfirmed) {
+      await fetch('/api/post?id=' + id, {
+        method: 'DELETE'
+      })
+
+    }
+  }
+
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md w-full">
       {" "}
@@ -63,22 +75,26 @@ export default function Statement() {
                       {formatDate(transaction.date)}
                     </p>
 
+                  </div>
+                </div>
 
+                <div className="flex justify-between items-center">
+
+                  {/* Valor */}
+                  <p className="justify-start font-semibold text-bb-black">
+                    {formatCurrency(transaction.amount)}
+                  </p>
+
+                  {/* Ações editar e excluir */}
+                  <div className="flex justify-end">
                     <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
                       <PencilIcon className="size-5 text-bb-white" />
                     </div>
                     <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
-                      <TrashIcon className="size-5 text-bb-white" />
+                      <TrashIcon className="size-5 text-bb-white" onClick={() => handleDelete(1)} />
                     </div>
-
-
-
                   </div>
                 </div>
-                {/* Valor */}
-                <p className="font-semibold text-bb-black">
-                  {formatCurrency(transaction.amount)}
-                </p>
               </div>
             </div>
           ))}
