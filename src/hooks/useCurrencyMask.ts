@@ -26,7 +26,8 @@ export function useCurrencyMask(
     mask.on("accept", () => {
       setMaskedValue(mask.value);
       const raw = mask.unmaskedValue;
-      setNumericValue(raw ? Number(raw) / 100 : null);
+      // Remove the division by 100 - IMask already handles decimal places with scale: 2
+      setNumericValue(raw ? Number(raw) : null);
     });
 
     return () => mask.destroy();

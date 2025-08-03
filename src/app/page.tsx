@@ -15,7 +15,7 @@ export default function Home() {
         </div>
       </main>
       <div className="col-span-full md:col-span-3">
-        <Statement />
+        <Statement showLatest={5} />
       </div>
     </div>
   );

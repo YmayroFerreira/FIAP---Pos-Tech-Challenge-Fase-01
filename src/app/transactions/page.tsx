@@ -5,9 +5,9 @@ export default function Transactions() {
     <div>
       <main>
         <div className="px-64">
-          <Statement></Statement>
+          <Statement isPaginated={true} itemsPerPage={5} />
         </div>
       </main>
     </div>
-  )
+  );
 }

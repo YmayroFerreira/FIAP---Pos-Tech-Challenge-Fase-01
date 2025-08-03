@@ -2,52 +2,68 @@
 
 import { useStatement } from "@/context/statementContext";
 import { useCurrencyMask } from "@/hooks/useCurrencyMask";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function NewTransaction() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { maskedValue } = useCurrencyMask(inputRef);
-  const { setTransactions } = useStatement();
+  const { numericValue } = useCurrencyMask(inputRef);
+  const { addTransaction } = useStatement();
 
-  function addTransaction() {
-    const typeSelect = document.getElementById(
-      "typeOfTransactionId"
-    ) as HTMLSelectElement;
+  // Add state for form fields to properly control them
+  const [transactionType, setTransactionType] = useState("");
+  const [description, setDescription] = useState("");
+
+  function addTransactionHandler() {
     const valueInput = inputRef.current;
-    const descriptionInput = document.getElementById(
-      "DescriptionOfTransactionId"
-    ) as HTMLInputElement;
 
-    if (!typeSelect || !valueInput || !descriptionInput) return;
+    if (!valueInput) return;
 
-    const typeValue = typeSelect.value;
-    const value = valueInput.value;
-    const description = descriptionInput.value;
+    // Validation
+    if (!transactionType || !numericValue || numericValue <= 0) {
+      alert("Preencha todos os campos corretamente.");
+      return;
+    }
+
+    if (!description.trim()) {
+      alert("Por favor, adicione uma descrição para a transação.");
+      return;
+    }
+
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${String(
       now.getMonth() + 1
     ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-    if (!typeValue || !value) {
-      alert("Preencha todos os campos.");
-      return;
-    }
-
     const newTransaction = {
-      type: typeValue as "Entry" | "Exit",
-      amount: maskedValue ?? "",
-      description: description,
+      type: transactionType as "Entry" | "Exit",
+      amount: numericValue,
+      description: description.trim(),
       date: formattedDate,
     };
-    console.log(newTransaction);
 
-    setTransactions((prev) =>
-      prev ? [...prev, newTransaction] : [newTransaction]
-    );
+    console.log("Adding transaction:", newTransaction);
 
-    typeSelect.value = "";
-    valueInput.value = "";
-    descriptionInput.value = "";
+    try {
+      addTransaction(newTransaction);
+
+      // Clear form properly
+      setTransactionType("");
+      setDescription("");
+
+      // Reset the currency input by clearing and triggering the mask
+      if (valueInput) {
+        valueInput.value = "";
+        // Trigger input event to make IMask reset properly
+        const event = new Event("input", { bubbles: true });
+        valueInput.dispatchEvent(event);
+      }
+
+      // Show success message
+      alert("Transação adicionada com sucesso!");
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      alert("Erro ao adicionar transação. Tente novamente.");
+    }
   }
 
   return (
@@ -57,8 +73,8 @@ export default function NewTransaction() {
       <select
         className="max-w-[355px] h-12 px-4 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
         name="typeOfTransaction"
-        id="typeOfTransactionId"
-        defaultValue=""
+        value={transactionType}
+        onChange={(e) => setTransactionType(e.target.value)}
         required
       >
         <option value="" disabled>
@@ -82,6 +98,9 @@ export default function NewTransaction() {
             name="DescriptionOfTransaction"
             id="DescriptionOfTransactionId"
             placeholder="Conta de luz"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
           />
         </div>
 
@@ -100,14 +119,15 @@ export default function NewTransaction() {
             name="valueOfTransaction"
             id="valueOfTransactionId"
             placeholder="R$ 0,00"
+            required
           />
         </div>
       </div>
 
       <button
         className="max-w-[355px] h-12 bg-bb-green text-white font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200"
-        type="submit"
-        onClick={addTransaction}
+        type="button"
+        onClick={addTransactionHandler}
       >
         Concluir transação
       </button>
