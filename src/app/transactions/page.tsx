@@ -1,10 +1,13 @@
+import Statement from "../components/banking/Statement";
+
 export default function Transactions() {
-return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1>Extrato</h1>
-        <p>tela de extrato</p>
+  return (
+    <div>
+      <main>
+        <div className="px-64">
+          <Statement isPaginated={true} itemsPerPage={5} />
+        </div>
       </main>
-      </div>
-)
+    </div>
+  );
 }

@@ -1,5 +1,5 @@
 import BalanceCard from "./components/banking/BalanceCard";
-import NewTransaction from "./components/banking/NewTransaction";
+import TransactionForm from "./components/banking/TransactionForm";
 import Statement from "./components/banking/Statement";
 
 export default function Home() {
@@ -11,11 +11,11 @@ export default function Home() {
       <main className="col-span-full md:col-span-7">
         <div className="flex flex-col gap-6">
           <BalanceCard />
-          <NewTransaction />
+          <TransactionForm />
         </div>
       </main>
       <div className="col-span-full md:col-span-3">
-        <Statement />
+        <Statement showLatest={5} />
       </div>
     </div>
   );
