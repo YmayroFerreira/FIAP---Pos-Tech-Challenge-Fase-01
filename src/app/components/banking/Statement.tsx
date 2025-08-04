@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { useStatement } from "@/context/statementContext";
+import { useStatement } from "@/context/StatementContext";
+import TransactionForm from "./TransactionForm";
+import type { Transaction } from "@/context/StatementContext";
 
-type Props = {
+interface Props {
   isPaginated?: boolean;
   itemsPerPage?: number;
-  showLatest?: number; // For homepage - show only latest N transactions
-};
+  showLatest?: number;
+}
 
 export default function Statement({
   isPaginated = false,
@@ -18,6 +20,8 @@ export default function Statement({
 }: Props) {
   const { transactions, deleteTransaction } = useStatement();
   const [page, setPage] = useState(1);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -47,26 +51,30 @@ export default function Statement({
     }
   };
 
-  // Sort transactions by ID (newest first) - since IDs are sequential/timestamp-based
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransaction(null);
+  };
+
   const sortedTransactions = [...transactions].sort((a, b) => {
     return parseInt(b.id) - parseInt(a.id);
   });
 
-  // Apply latest filter if specified (for homepage)
   const filteredTransactions = showLatest
     ? sortedTransactions.slice(0, showLatest)
     : sortedTransactions;
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
 
-  // Fix pagination bug: Reset to last valid page if current page exceeds total pages
   useEffect(() => {
     if (isPaginated && totalPages > 0 && page > totalPages) {
       setPage(totalPages);
     }
   }, [totalPages, page, isPaginated]);
 
-  // Apply pagination if enabled
   const displayTransactions = isPaginated
     ? filteredTransactions.slice((page - 1) * itemsPerPage, page * itemsPerPage)
     : filteredTransactions;
@@ -120,7 +128,10 @@ export default function Statement({
                     {formatCurrency(transaction.amount)}
                   </p>
                   <div className="flex justify-end space-x-2">
-                    <div className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
+                    <div
+                      className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
+                      onClick={() => handleEdit(transaction)}
+                    >
                       <PencilIcon className="size-5 text-bb-white" />
                     </div>
                     <div
@@ -156,6 +167,19 @@ export default function Statement({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="max-w-2xl w-full mx-4">
+            <TransactionForm
+              editingTransaction={editingTransaction}
+              onCancel={handleCancelEdit}
+              isModal={true}
+            />
+          </div>
         </div>
       )}
     </div>

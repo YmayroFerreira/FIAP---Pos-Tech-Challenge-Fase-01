@@ -1,17 +1,24 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 
-// Unified transaction type
-type Transaction = {
+interface Transaction {
   id: string;
   type: "Entry" | "Exit";
-  amount: number; // Changed to number for consistency
+  amount: number;
   description: string;
   date: string;
-};
+}
 
-type StatementContextType = {
+interface UserInfo {
+  name: string;
+  accountType: string;
+  initialBalance: number;
+}
+
+interface StatementContextType {
   transactions: Transaction[];
+  userInfo: UserInfo;
+  currentBalance: number;
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   addTransaction: (transaction: Omit<Transaction, "id">) => void;
   updateTransaction: (
@@ -20,9 +27,15 @@ type StatementContextType = {
   ) => void;
   deleteTransaction: (id: string) => void;
   getLatestTransactions: (count: number) => Transaction[];
+  calculateBalance: () => number;
+}
+
+const mockUserInfo: UserInfo = {
+  name: "Username teste",
+  accountType: "Conta Corrente",
+  initialBalance: 0,
 };
 
-// Mock data - you can move this to a separate file
 const mockTransactions: Transaction[] = [
   {
     id: "1",
@@ -78,8 +91,42 @@ export const StatementProvider = ({
   children: React.ReactNode;
 }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [userInfo] = useState<UserInfo>(mockUserInfo);
+  const [currentBalance, setCurrentBalance] = useState<number>(0);
 
-  // Initialize with mock data
+  const calculateBalance = () => {
+    const transactionTotal = transactions.reduce((total, transaction) => {
+      if (transaction.type === "Entry") {
+        return total + transaction.amount;
+      } else {
+        return total - transaction.amount;
+      }
+    }, 0);
+
+    return userInfo.initialBalance + transactionTotal;
+  };
+
+  useEffect(() => {
+    const transactionTotal = transactions.reduce((total, transaction) => {
+      if (transaction.type === "Entry") {
+        return total + transaction.amount;
+      } else {
+        return total - transaction.amount;
+      }
+    }, 0);
+
+    const newBalance = userInfo.initialBalance + transactionTotal;
+
+    console.log("Balance calculation:", {
+      initialBalance: userInfo.initialBalance,
+      transactionTotal,
+      newBalance,
+      transactionCount: transactions.length,
+    });
+
+    setCurrentBalance(newBalance);
+  }, [transactions, userInfo.initialBalance]);
+
   useEffect(() => {
     setTransactions(mockTransactions);
   }, []);
@@ -87,7 +134,7 @@ export const StatementProvider = ({
   const addTransaction = (transaction: Omit<Transaction, "id">) => {
     const newTransaction: Transaction = {
       ...transaction,
-      id: Date.now().toString(), // Simple ID generation
+      id: Date.now().toString(),
     };
     setTransactions((prev) => [...prev, newTransaction]);
   };
@@ -104,7 +151,7 @@ export const StatementProvider = ({
 
   const getLatestTransactions = (count: number) => {
     return [...transactions]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => parseInt(b.id) - parseInt(a.id))
       .slice(0, count);
   };
 
@@ -112,11 +159,14 @@ export const StatementProvider = ({
     <StatementContext.Provider
       value={{
         transactions,
+        userInfo,
+        currentBalance,
         setTransactions,
         addTransaction,
         updateTransaction,
         deleteTransaction,
         getLatestTransactions,
+        calculateBalance,
       }}
     >
       {children}
@@ -131,4 +181,4 @@ export const useStatement = () => {
   return context;
 };
 
-export type { Transaction };
+export type { Transaction, UserInfo };
