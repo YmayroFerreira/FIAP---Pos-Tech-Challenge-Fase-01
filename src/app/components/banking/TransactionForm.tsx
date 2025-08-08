@@ -3,6 +3,8 @@
 import { useStatement } from "@/context/StatementContext";
 import { useCurrencyMask } from "@/hooks/useCurrencyMask";
 import { useRef, useState, useEffect } from "react";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+
 import type { Transaction } from "@/context/StatementContext";
 
 interface Props {
@@ -90,7 +92,7 @@ export default function TransactionForm({
     <section className={containerClasses}>
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-bold text-gray-800 text-2xl">
-          {isEditMode ? "Editar Transação" : "Nova Transação"}
+          {isEditMode ? "Editar transação" : "Nova transação"}
         </h2>
         {isModal && onCancel && (
           <button
@@ -103,24 +105,31 @@ export default function TransactionForm({
       </div>
 
       <div className="space-y-6">
-        <select
-          className="max-w-[355px] h-12 px-4 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
-          name="typeOfTransaction"
-          value={transactionType}
-          onChange={(e) => setTransactionType(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Selecione o tipo de transação
-          </option>
-          <option value="Entry">Entrada</option>
-          <option value="Exit">Saída</option>
-        </select>
+        <div className="flex gap-8">
+          <div className="relative max-w-[355px] w-full">
+            <select
+              className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
+              name="typeOfTransaction"
+              value={transactionType}
+              onChange={(e) => setTransactionType(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Selecione o tipo de transação
+              </option>
+              <option value="Entry">Entrada</option>
+              <option value="Exit">Saída</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <ChevronDownIcon className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
 
         <div className="flex gap-8">
           <div className="flex flex-col gap-2">
             <label
-              className="font-medium text-gray-700 text-sm"
+              className="font-medium text-gray-700 font-semibold"
               htmlFor="DescriptionOfTransactionId"
             >
               Descrição
@@ -139,7 +148,7 @@ export default function TransactionForm({
 
           <div className="flex flex-col gap-2">
             <label
-              className="font-medium text-gray-700 text-sm"
+              className="font-medium text-gray-700 font-semibold"
               htmlFor="valueOfTransactionId"
             >
               Valor
@@ -157,7 +166,7 @@ export default function TransactionForm({
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="max-w-[355px]">
           <div className="flex gap-4 w-full">
             <button
               className="flex-1 max-w-sm h-12 bg-bb-green text-white font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200 transition-opacity"

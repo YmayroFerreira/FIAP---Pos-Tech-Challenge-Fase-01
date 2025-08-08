@@ -4,6 +4,7 @@ import GlobalHeader from "@/app/components/global/Header";
 
 import "./globals.css";
 import { StatementProvider } from "@/context/StatementContext";
+import Sidebar from "./components/banking/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,17 @@ export default function RootLayout({
       <body
         className={`bg-bb-emerald ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="mb-8">
+        <header className="mb-8">
           <GlobalHeader />
+        </header>
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-6 p-4">
+          <aside className="col-span-full md:col-span-2">
+            <Sidebar />
+          </aside>
+          <main className="col-span-full md:col-span-10">
+            <StatementProvider>{children}</StatementProvider>
+          </main>
         </div>
-        <StatementProvider>{children}</StatementProvider>
       </body>
     </html>
   );
