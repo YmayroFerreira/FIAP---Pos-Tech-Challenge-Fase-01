@@ -37,6 +37,10 @@ export default function Statement({
     });
   };
 
+  const formatTransactionStyle = (type: "Entry" | "Exit") => {
+    return type === "Entry" ? "text-green-600" : "text-red-600";
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -82,7 +86,9 @@ export default function Statement({
   return (
     <div className="bg-white p-6 rounded-lg shadow-md w-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-bb-black">Extrato</h2>
+        <h2 className="text-xl font-semibold text-bb-black">
+          {isPaginated ? "Transações" : "Extrato"}
+        </h2>
         {!isPaginated && (
           <Link
             href="/transactions"
@@ -119,28 +125,30 @@ export default function Statement({
                 <div className="flex justify-between items-center">
                   <p
                     className={`justify-start font-semibold ${
-                      transaction.type === "Entry"
-                        ? "text-green-600"
-                        : "text-red-600"
+                      isPaginated
+                        ? formatTransactionStyle(transaction.type)
+                        : ""
                     }`}
                   >
                     {transaction.type === "Entry" ? "+" : "-"}{" "}
                     {formatCurrency(transaction.amount)}
                   </p>
-                  <div className="flex justify-end space-x-2">
-                    <div
-                      className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
-                      onClick={() => handleEdit(transaction)}
-                    >
-                      <PencilIcon className="size-5 text-bb-white" />
+                  {isPaginated && (
+                    <div className="flex justify-end space-x-2">
+                      <div
+                        className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
+                        onClick={() => handleEdit(transaction)}
+                      >
+                        <PencilIcon className="size-5 text-bb-white" />
+                      </div>
+                      <div
+                        className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
+                        onClick={() => handleDelete(transaction.id)}
+                      >
+                        <TrashIcon className="size-5 text-bb-white" />
+                      </div>
                     </div>
-                    <div
-                      className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
-                      onClick={() => handleDelete(transaction.id)}
-                    >
-                      <TrashIcon className="size-5 text-bb-white" />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -172,7 +180,7 @@ export default function Statement({
 
       {/* Edit Modal */}
       {editingTransaction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-2xl w-full mx-4">
             <TransactionForm
               editingTransaction={editingTransaction}

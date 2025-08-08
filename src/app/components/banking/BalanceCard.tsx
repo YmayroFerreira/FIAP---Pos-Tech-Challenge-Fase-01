@@ -35,30 +35,36 @@ export default function BalanceCard() {
 
   return (
     <div className="bg-gradient-bb text-white p-6 w-full text-2xl rounded-lg">
-      <div className="flex flex-col items-start mb-6">
-        <p className="font-bold mb-2">Olá, {userInfo.name}! :)</p>
-        <p className="text-base capitalize">{currentDate || "Carregando..."}</p>
-      </div>
-
-      <div className="flex flex-col items-end">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-lg">Saldo</p>
-          <BalanceIcon
-            className="size-6 text-bb-red cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={toggleVisibility}
-          />
+      <div className="flex flex-col md:grid md:grid-cols-7 gap-6 p-4">
+        <div className="col-span-full md:col-span-4">
+          <p className="font-semibold mb-2">Olá, {userInfo.name}! :)</p>
+          <p className="text-sm text-base capitalize">
+            {currentDate || "Carregando..."}
+          </p>
         </div>
 
-        <p className="text-base mb-2">{userInfo.accountType}</p>
+        <div className="col-start-5 row-start-2">
+          <div className="flex items-baseline gap-3 mb-1">
+            <p className="text-lg font-semibold">Saldo</p>
+            <BalanceIcon
+              className="size-4 text-bb-red cursor-pointer hover:opacity-80 transition-opacity text-center"
+              onClick={toggleVisibility}
+            />
+          </div>
+          <div className="w-33 h-px bg-bb-red mb-2"></div>
+          <p className="text-sm text-base mb-2 whitespace-nowrap">
+            {userInfo.accountType}
+          </p>
 
-        <div className="text-right">
-          {showBalance ? (
-            <p className="text-2xl font-bold">
-              {formatCurrency(currentBalance)}
-            </p>
-          ) : (
-            <p className="text-2xl font-bold">••••••••••</p>
-          )}
+          <div className="text-right">
+            {showBalance ? (
+              <p className="text-2xl font-semibold">
+                {formatCurrency(currentBalance)}
+              </p>
+            ) : (
+              <p className="text-2xl font-semibold">••••••••••</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
