@@ -4,10 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Dados mockados para os links da sidebar
 const navItems = [
   { name: "Início", href: "/" },
-  { name: "Transferências", href: "/transactions" },
+  { name: "Transações", href: "/transactions" },
 ];
 
 export default function Sidebar() {
