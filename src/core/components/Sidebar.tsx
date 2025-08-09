@@ -14,25 +14,46 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white text-text-bb-black h-screen p-6 rounded-lg shadow-md">
-      <ul className="space-y-2">
+    <nav
+      className="bg-white text-text-bb-black rounded-lg shadow-md
+                    /* Mobile: horizontal bar */
+                    p-4 md:p-6
+                    /* Desktop: vertical sidebar */
+                    md:h-screen"
+    >
+      <ul
+        className="
+                    /* Mobile: horizontal layout */
+                    flex justify-center space-x-4 md:space-x-0
+                    /* Desktop: vertical layout */
+                    md:flex-col md:space-y-2"
+      >
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <li
               key={item.name}
-              className={`border-b last:border-b-0 last:pb-0 ${
-                isActive ? "border-bb-light-green" : "border-bb-back"
-              }`}
+              className={`
+                        /* Mobile: no borders, compact */
+                        md:border-b md:last:border-b-0 md:last:pb-0 
+                        ${
+                          isActive
+                            ? "md:border-bb-light-green"
+                            : "md:border-bb-back"
+                        }`}
             >
               <Link
                 href={item.href}
-                className={`block py-3 px-4 rounded-md transition-colors duration-150 ease-in-out
-                ${
-                  isActive
-                    ? "text-bb-light-green font-semibold text-center"
-                    : "hover:text-bb-light-green/80 text-center"
-                }`}
+                className={`block transition-colors duration-150 ease-in-out
+                          /* Mobile: compact horizontal buttons */
+                          py-2 px-3 rounded-md text-sm text-center
+                          /* Desktop: full width vertical items */
+                          md:py-3 md:px-4 md:text-base
+                          ${
+                            isActive
+                              ? "text-bb-light-green font-semibold bg-bb-light-green/10"
+                              : "hover:text-bb-light-green/80 hover:bg-bb-light-green/5"
+                          }`}
               >
                 {item.name}
               </Link>

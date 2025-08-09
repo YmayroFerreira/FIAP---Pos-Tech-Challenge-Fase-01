@@ -91,13 +91,13 @@ export default function TransactionForm({
   }
 
   const containerClasses = isModal
-    ? "bg-white p-6 rounded-lg shadow-lg"
-    : "bg-white shadow-md p-8 rounded-xl";
+    ? "bg-white p-4 sm:p-6 rounded-lg shadow-lg"
+    : "bg-white shadow-md p-4 sm:p-8 rounded-xl";
 
   return (
     <section className={containerClasses}>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="font-bold text-gray-800 text-2xl">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="font-bold text-gray-800 text-xl sm:text-2xl">
           {isEditMode ? "Editar transação" : "Nova transação"}
         </h2>
         {isModal && onCancel && (
@@ -110,10 +110,10 @@ export default function TransactionForm({
         )}
       </div>
 
-      <div className="space-y-6">
-        <div className="flex gap-8">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="w-full">
           <Select
-            className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
+            className="w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
             name="typeOfTransaction"
             value={transactionType}
             onChange={(e) => setTransactionType(e.target.value)}
@@ -123,46 +123,56 @@ export default function TransactionForm({
           />
         </div>
 
-        <div className="flex gap-8">
-          <Input
-            type="text"
-            className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
-            name="DescriptionOfTransaction"
-            id="DescriptionOfTransactionId"
-            placeholder="Conta de luz"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            label="Descrição"
-          />
-          <Input
-            ref={inputRef}
-            inputMode="decimal"
-            type="text"
-            className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
-            name="valueOfTransaction"
-            id="valueOfTransactionId"
-            placeholder="R$ 0,00"
-            required
-            label="Valor"
-          />
+        <div className="flex flex-col sm:flex-row sm:gap-8 space-y-4 sm:space-y-0">
+          <div className="flex-1 sm:max-w-[355px]">
+            <Input
+              type="text"
+              className="w-full h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
+              name="DescriptionOfTransaction"
+              id="DescriptionOfTransactionId"
+              placeholder="Conta de luz"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              label="Descrição"
+            />
+          </div>
+          <div className="flex-1 sm:max-w-[355px]">
+            <Input
+              ref={inputRef}
+              inputMode="decimal"
+              type="text"
+              className="w-full h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
+              name="valueOfTransaction"
+              id="valueOfTransactionId"
+              placeholder="R$ 0,00"
+              required
+              label="Valor"
+            />
+          </div>
         </div>
 
-        <div className="max-w-[355px]">
-          <div className="flex gap-4 w-full">
-            <Button
-              type="button"
-              label={isEditMode ? "Atualizar transação" : "Concluir transação"}
-              onClick={handleSubmit}
-              variant="primary"
-            />
-            {isEditMode && onCancel && (
+        <div className="w-full">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:max-w-[355px]">
+            <div className="flex-1">
               <Button
-                variant="secondary"
                 type="button"
-                onClick={onCancel}
-                label="Cancelar"
+                label={
+                  isEditMode ? "Atualizar transação" : "Concluir transação"
+                }
+                onClick={handleSubmit}
+                variant="primary"
               />
+            </div>
+            {isEditMode && onCancel && (
+              <div className="flex-1">
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={onCancel}
+                  label="Cancelar"
+                />
+              </div>
             )}
           </div>
         </div>
