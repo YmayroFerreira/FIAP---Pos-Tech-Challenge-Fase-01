@@ -1,6 +1,6 @@
-import BalanceCard from "./components/banking/BalanceCard";
-import TransactionForm from "./components/banking/TransactionForm";
-import Statement from "./components/banking/Statement";
+import BalanceCard from "@/core/components/BalanceCard";
+import Statement from "@/core/components/Statement";
+import TransactionForm from "@/core/components/TransactionForm";
 
 export default function Home() {
   return (

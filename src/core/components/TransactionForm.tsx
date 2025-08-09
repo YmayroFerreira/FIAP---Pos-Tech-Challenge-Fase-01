@@ -3,21 +3,27 @@
 import { useStatement } from "@/context/StatementContext";
 import { useCurrencyMask } from "@/hooks/useCurrencyMask";
 import { useRef, useState, useEffect } from "react";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { TransactionModel } from "../models";
+import Input from "@/shared/components/input/Input";
+import Button from "@/shared/components/button/Button";
+import Select from "@/shared/components/select/Select";
 
-import type { Transaction } from "@/context/StatementContext";
-
-interface Props {
-  editingTransaction?: Transaction;
-  onCancel?: () => void;
-  isModal?: boolean;
-}
+const transactionOptions = [
+  {
+    option: "Entrada",
+    value: "Entry",
+  },
+  {
+    option: "Saída",
+    value: "Exit",
+  },
+];
 
 export default function TransactionForm({
   editingTransaction,
   onCancel,
   isModal = false,
-}: Props) {
+}: TransactionModel) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { numericValue, setValue } = useCurrencyMask(inputRef);
   const { addTransaction, updateTransaction } = useStatement();
@@ -106,84 +112,57 @@ export default function TransactionForm({
 
       <div className="space-y-6">
         <div className="flex gap-8">
-          <div className="relative max-w-[355px] w-full">
-            <select
-              className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
-              name="typeOfTransaction"
-              value={transactionType}
-              onChange={(e) => setTransactionType(e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Selecione o tipo de transação
-              </option>
-              <option value="Entry">Entrada</option>
-              <option value="Exit">Saída</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <ChevronDownIcon className="h-5 w-5" />
-            </div>
-          </div>
+          <Select
+            className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
+            name="typeOfTransaction"
+            value={transactionType}
+            onChange={(e) => setTransactionType(e.target.value)}
+            required
+            defaultTextOption="Selecione o tipo de transação"
+            options={transactionOptions}
+          />
         </div>
 
         <div className="flex gap-8">
-          <div className="flex flex-col gap-2">
-            <label
-              className="font-medium text-gray-700 font-semibold"
-              htmlFor="DescriptionOfTransactionId"
-            >
-              Descrição
-            </label>
-            <input
-              type="text"
-              className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
-              name="DescriptionOfTransaction"
-              id="DescriptionOfTransactionId"
-              placeholder="Conta de luz"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label
-              className="font-medium text-gray-700 font-semibold"
-              htmlFor="valueOfTransactionId"
-            >
-              Valor
-            </label>
-            <input
-              ref={inputRef}
-              inputMode="decimal"
-              type="text"
-              className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
-              name="valueOfTransaction"
-              id="valueOfTransactionId"
-              placeholder="R$ 0,00"
-              required
-            />
-          </div>
+          <Input
+            type="text"
+            className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
+            name="DescriptionOfTransaction"
+            id="DescriptionOfTransactionId"
+            placeholder="Conta de luz"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            label="Descrição"
+          />
+          <Input
+            ref={inputRef}
+            inputMode="decimal"
+            type="text"
+            className="max-w-[355px] h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
+            name="valueOfTransaction"
+            id="valueOfTransactionId"
+            placeholder="R$ 0,00"
+            required
+            label="Valor"
+          />
         </div>
 
         <div className="max-w-[355px]">
           <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 max-w-sm h-12 bg-bb-green text-white font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200 transition-opacity"
+            <Button
               type="button"
+              label={isEditMode ? "Atualizar transação" : "Concluir transação"}
               onClick={handleSubmit}
-            >
-              {isEditMode ? "Atualizar transação" : "Concluir transação"}
-            </button>
-
+              variant="primary"
+            />
             {isEditMode && onCancel && (
-              <button
-                className="flex-1 max-w-sm h-12 bg-gray-500 text-white font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200 transition-opacity"
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={onCancel}
-              >
-                Cancelar
-              </button>
+                label="Cancelar"
+              />
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function GlobalHeader() {
+export default function Header() {
   return (
     <div className="bg-gradient-bb text-white p-4 flex justify-end items-center gap-3">
       <span>My Username</span>

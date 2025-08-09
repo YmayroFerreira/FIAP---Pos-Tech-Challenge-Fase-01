@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import GlobalHeader from "@/app/components/global/Header";
 
 import "./globals.css";
 import { StatementProvider } from "@/context/StatementContext";
-import Sidebar from "./components/banking/Sidebar";
+import Sidebar from "../core/components/Sidebar";
+import Header from "@/core/components/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`bg-bb-emerald ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <header className="mb-8">
-          <GlobalHeader />
+          <Header />
         </header>
         <div className="flex flex-col md:grid md:grid-cols-12 gap-6 p-4">
           <aside className="col-span-full md:col-span-2">

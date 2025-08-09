@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { useStatement } from "@/context/StatementContext";
+import Text from "@/shared/components/paragraph/Paragraph";
+import Paragraph from "@/shared/components/paragraph/Paragraph";
 
 export default function BalanceCard() {
   const { userInfo, currentBalance } = useStatement();
@@ -37,32 +39,41 @@ export default function BalanceCard() {
     <div className="bg-gradient-bb text-white p-6 w-full text-2xl rounded-lg">
       <div className="flex flex-col md:grid md:grid-cols-7 gap-6 p-4">
         <div className="col-span-full md:col-span-4">
-          <p className="font-semibold mb-2">Olá, {userInfo.name}! :)</p>
-          <p className="text-sm text-base capitalize">
-            {currentDate || "Carregando..."}
-          </p>
+          <Paragraph
+            label={`Olá, ${userInfo.name}! :)`}
+            className="font-semibold mb-2"
+          />
+          <Paragraph
+            label={`${currentDate || "Carregando..."}`}
+            className="text-sm capitalize"
+          />
         </div>
 
         <div className="col-start-5 row-start-2">
           <div className="flex items-baseline gap-3 mb-1">
-            <p className="text-lg font-semibold">Saldo</p>
+            <Paragraph label="Saldo" className="text-lg font-semibold" />
             <BalanceIcon
               className="size-4 text-bb-red cursor-pointer hover:opacity-80 transition-opacity text-center"
               onClick={toggleVisibility}
             />
           </div>
           <div className="w-33 h-px bg-bb-red mb-2"></div>
-          <p className="text-sm text-base mb-2 whitespace-nowrap">
-            {userInfo.accountType}
-          </p>
+          <Paragraph
+            label={`${userInfo.accountType}`}
+            className="text-sm mb-2 whitespace-nowrap"
+          />
 
           <div className="text-right">
             {showBalance ? (
-              <p className="text-2xl font-semibold">
-                {formatCurrency(currentBalance)}
-              </p>
+              <Paragraph
+                label={`${formatCurrency(currentBalance)}`}
+                className="text-2xl font-semibold"
+              />
             ) : (
-              <p className="text-2xl font-semibold">••••••••••</p>
+              <Paragraph
+                label="••••••••••"
+                className="text-2xl font-semibold"
+              />
             )}
           </div>
         </div>
