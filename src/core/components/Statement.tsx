@@ -6,18 +6,15 @@ import Link from "next/link";
 import { useStatement } from "@/context/StatementContext";
 import TransactionForm from "./TransactionForm";
 import type { Transaction } from "@/context/StatementContext";
-
-interface Props {
-  isPaginated?: boolean;
-  itemsPerPage?: number;
-  showLatest?: number;
-}
+import { StatementModel } from "../models";
+import Button from "@/shared/components/button/Button";
+import Paragraph from "@/shared/components/paragraph/Paragraph";
 
 export default function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
-}: Props) {
+}: StatementModel) {
   const { transactions, deleteTransaction } = useStatement();
   const [page, setPage] = useState(1);
   const [editingTransaction, setEditingTransaction] =
@@ -100,9 +97,10 @@ export default function Statement({
       </div>
 
       {displayTransactions.length === 0 ? (
-        <p className="text-gray-600 text-center py-4">
-          Nenhuma transação encontrada.
-        </p>
+        <Paragraph
+          label="Nenhuma transação encontrada."
+          className="text-gray-600 text-center py-4"
+        />
       ) : (
         <div className="space-y-4">
           {displayTransactions.map((transaction) => (
@@ -111,28 +109,32 @@ export default function Statement({
               className="flex justify-between items-start text-sm border-b border-bb-light-green pb-3 last:border-b-0 last:pb-0"
             >
               <div className="flex-1 pr-2">
-                <p className="text-xs text-bb-light-green capitalize mb-0.8 font-semibold">
-                  {formatMonth(transaction.date)}
-                </p>
+                <Paragraph
+                  label={`${formatMonth(transaction.date)}`}
+                  className="text-xs text-bb-light-green capitalize mb-0.8 font-semibold"
+                />
                 <div className="flex justify-between items-center">
-                  <p className="text-bb-black">{transaction.description}</p>
+                  <Paragraph
+                    label={`${transaction.description}`}
+                    className="text-bb-black"
+                  />
                   <div className="text-right flex-shrink-0">
-                    <p className="text-bb-light-grey mt-0.5">
-                      {formatDate(transaction.date)}
-                    </p>
+                    <Paragraph
+                      label={`${formatDate(transaction.date)}`}
+                      className="text-bb-light-grey mt-0.5"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p
+                  <Paragraph
+                    label={`${transaction.type === "Entry" ? "+" : "-"}${" "}
+                    ${formatCurrency(transaction.amount)}`}
                     className={`justify-start font-semibold ${
                       isPaginated
                         ? formatTransactionStyle(transaction.type)
                         : ""
                     }`}
-                  >
-                    {transaction.type === "Entry" ? "+" : "-"}{" "}
-                    {formatCurrency(transaction.amount)}
-                  </p>
+                  ></Paragraph>
                   {isPaginated && (
                     <div className="flex justify-end space-x-2">
                       <div
@@ -156,23 +158,24 @@ export default function Statement({
 
           {isPaginated && totalPages > 1 && (
             <div className="flex justify-center items-center pt-4 space-x-4">
-              <button
+              <Button
                 disabled={page === 1}
                 onClick={() => setPage((prev) => prev - 1)}
                 className="text-bb-green disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Anterior
-              </button>
-              <span className="text-sm text-gray-700">
-                Página {page} de {totalPages}
-              </span>
-              <button
+                label="Anterior"
+                variant="tertiary"
+              />
+              <Paragraph
+                className="text-sm text-gray-700"
+                label={`Página ${page} de ${totalPages}`}
+              />
+              <Button
                 disabled={page === totalPages}
                 onClick={() => setPage((prev) => prev + 1)}
                 className="text-bb-green disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Próxima
-              </button>
+                label="Próxima"
+                variant="tertiary"
+              />
             </div>
           )}
         </div>
