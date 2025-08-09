@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { useStatement } from "@/context/StatementContext";
-import Text from "@/shared/components/paragraph/Paragraph";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
 
 export default function BalanceCard() {
@@ -29,10 +28,15 @@ export default function BalanceCard() {
   }, []);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    const isNegative = amount < 0;
+    const absoluteAmount = Math.abs(amount);
+
+    const formatted = new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(amount);
+    }).format(absoluteAmount);
+
+    return isNegative ? `-${formatted}` : formatted;
   };
 
   return (
@@ -49,7 +53,7 @@ export default function BalanceCard() {
           />
         </div>
 
-        <div className="col-start-5 row-start-2">
+        <div className="col-start-6 row-start-2">
           <div className="flex items-baseline gap-3 mb-1">
             <Paragraph label="Saldo" className="text-lg font-semibold" />
             <BalanceIcon
@@ -67,7 +71,7 @@ export default function BalanceCard() {
             {showBalance ? (
               <Paragraph
                 label={`${formatCurrency(currentBalance)}`}
-                className="text-2xl font-semibold"
+                className="text-2xl font-semibold whitespace-nowrap"
               />
             ) : (
               <Paragraph

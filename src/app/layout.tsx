@@ -31,17 +31,17 @@ export default function RootLayout({
       <body
         className={`bg-bb-emerald ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="mb-8">
-          <Header />
-        </header>
-        <div className="flex flex-col md:grid md:grid-cols-12 gap-6 p-4">
-          <aside className="col-span-full md:col-span-2">
-            <Sidebar />
-          </aside>
-          <main className="col-span-full md:col-span-10">
-            <StatementProvider>{children}</StatementProvider>
-          </main>
-        </div>
+        <StatementProvider>
+          <header className="mb-8">
+            <Header />
+          </header>
+          <div className="flex flex-col md:grid md:grid-cols-12 gap-6 p-4">
+            <aside className="col-span-full md:col-span-2">
+              <Sidebar />
+            </aside>
+            <main className="col-span-full md:col-span-10">{children}</main>
+          </div>
+        </StatementProvider>
       </body>
     </html>
   );
