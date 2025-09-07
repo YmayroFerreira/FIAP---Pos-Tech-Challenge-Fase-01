@@ -1,89 +1,73 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
+import { createTransaction, createTransactionData, getAccount } from '../services/account';
+import { loginAutomatically } from '../services/auth';
+
+export type transactionType = "Credit" | "Debit";
 
 interface Transaction {
   id: string;
-  type: "Entry" | "Exit";
-  amount: number;
-  description: string;
+  accountId: string;
+  type: transactionType;
+  value: number;
   date: string;
 }
 
-interface UserInfo {
+interface AccountInfo {
+  id: string;
+  type: transactionType;
+  is_blocked: boolean;
+  number: string;
+  dueDate: string;
+  functions: string;
+  cvc: string;
+  paymentDate: string | null;
   name: string;
-  accountType: string;
-  initialBalance: number;
+}
+
+interface UserInfo {
+  username: string;
+  email: string;
+  id: string;
 }
 
 interface StatementContextType {
   transactions: Transaction[];
-  userInfo: UserInfo;
+  userInfo: UserInfo | null;
+  accountInfo: AccountInfo | null;
   currentBalance: number;
+  loading: boolean;
+  error: string | null;
+  addTransaction: (
+    transaction: Pick<Transaction, "type" | "value"> & { from?: string; to?: string; anexo?: string }
+  ) => void;
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-  addTransaction: (transaction: Omit<Transaction, "id">) => void;
-  updateTransaction: (
+  updateTransaction: ( // Changed to match the type in the useCallback
     id: string,
     updatedTransaction: Omit<Transaction, "id">
   ) => void;
   deleteTransaction: (id: string) => void;
   getLatestTransactions: (count: number) => Transaction[];
-  calculateBalance: () => number;
+  calculateBalance: (txns: Transaction[]) => number;
 }
-
-const mockUserInfo: UserInfo = {
-  name: "Username teste",
-  accountType: "Conta Corrente",
-  initialBalance: 0,
-};
-
-const mockTransactions: Transaction[] = [
-  {
-    id: "1",
-    type: "Entry",
-    amount: 2500.0,
-    description: "Salário",
-    date: "2025-07-01",
-  },
-  {
-    id: "2",
-    type: "Exit",
-    amount: 150.5,
-    description: "Conta de luz",
-    date: "2025-07-02",
-  },
-  {
-    id: "3",
-    type: "Exit",
-    amount: 89.9,
-    description: "Internet",
-    date: "2025-07-03",
-  },
-  {
-    id: "4",
-    type: "Entry",
-    amount: 500.0,
-    description: "Freelance",
-    date: "2025-07-05",
-  },
-  {
-    id: "5",
-    type: "Exit",
-    amount: 75.3,
-    description: "Supermercado",
-    date: "2025-07-06",
-  },
-  {
-    id: "6",
-    type: "Exit",
-    amount: 45.0,
-    description: "Transporte",
-    date: "2025-07-07",
-  },
-];
-
 const StatementContext = createContext<StatementContextType | undefined>(
   undefined
 );
+
+// const MOCK_ACCOUNT_ID = "68bc78683f7249c643dca1d9";
+
+const calculateBalance = (txns: Transaction[]): number => {
+  return txns.reduce((total, transaction) => {
+    return total + transaction.value;
+  }, 0);
+};
 
 export const StatementProvider = ({
   children,
@@ -91,83 +75,108 @@ export const StatementProvider = ({
   children: React.ReactNode;
 }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [userInfo] = useState<UserInfo>(mockUserInfo);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
   const [currentBalance, setCurrentBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const calculateBalance = () => {
-    const transactionTotal = transactions.reduce((total, transaction) => {
-      if (transaction.type === "Entry") {
-        return total + transaction.amount;
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      await loginAutomatically();
+      const accountData = await getAccount();
+
+      if (accountData?.result) {
+        setUserInfo({
+          username: accountData.result.user?.username || "",
+          email: accountData.result.user?.email || "",
+          id: accountData.result.user?.id || "",
+        });
+        setAccountInfo(accountData.result.account[0]);
+        setTransactions(accountData.result.transactions);
+        setCurrentBalance(calculateBalance(accountData.result.transactions));
       } else {
-        return total - transaction.amount;
+        setError("Não foi possível carregar os dados da conta.");
       }
-    }, 0);
-
-    return userInfo.initialBalance + transactionTotal;
-  };
-
-  useEffect(() => {
-    const transactionTotal = transactions.reduce((total, transaction) => {
-      if (transaction.type === "Entry") {
-        return total + transaction.amount;
-      } else {
-        return total - transaction.amount;
-      }
-    }, 0);
-
-    const newBalance = userInfo.initialBalance + transactionTotal;
-
-    console.log("Balance calculation:", {
-      initialBalance: userInfo.initialBalance,
-      transactionTotal,
-      newBalance,
-      transactionCount: transactions.length,
-    });
-
-    setCurrentBalance(newBalance);
-  }, [transactions, userInfo.initialBalance]);
-
-  useEffect(() => {
-    setTransactions(mockTransactions);
+    } catch (err) {
+      setError("Erro ao se conectar com a API."+ err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    };
-    setTransactions((prev) => [...prev, newTransaction]);
-  };
+  const addTransaction = useCallback(async (
+    transaction: Pick<Transaction, "type" | "value"> & { from?: string; to?: string; anexo?: string }
+  ) => {
+    if (accountInfo) {
+      // Débitos devem ser negativos, Créditos positivos.
+      const valueWithSign =
+        transaction.type === "Debit"
+          ? -Math.abs(transaction.value)
+          : Math.abs(transaction.value);
 
-  const updateTransaction = (id: string, updated: Omit<Transaction, "id">) => {
+      const transactionData: createTransactionData = {
+        accountId: accountInfo.id,
+        type: transaction.type,
+        value: valueWithSign,
+      };
+
+      try {
+        const response = await createTransaction(transactionData);
+        if (response) {
+          console.log("Transação criada com sucesso:", response);
+          // Recarrega os dados após a transação
+          await fetchData();
+        }
+      } catch (err) {
+        console.error("Erro ao criar transação:", err);
+      }
+    }
+  }, [accountInfo, fetchData]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const updateTransaction = useCallback((id: string, updated: Omit<Transaction, "id">) => {
     setTransactions((prev) =>
       prev.map((t) => (t.id === id ? { ...updated, id } : t))
     );
-  };
+  }, []);
 
-  const deleteTransaction = (id: string) => {
+  const deleteTransaction = useCallback((id: string) => {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
-  const getLatestTransactions = (count: number) => {
+  const getLatestTransactions = useCallback((count: number) => {
     return [...transactions]
       .sort((a, b) => parseInt(b.id) - parseInt(a.id))
       .slice(0, count);
-  };
+  }, [transactions]);
 
+  const value = useMemo(
+    () => ({
+      transactions,
+      userInfo,
+      accountInfo,
+      currentBalance,
+      loading,
+      error,
+      addTransaction,
+      setTransactions,
+      updateTransaction,
+      deleteTransaction,
+      getLatestTransactions,
+      calculateBalance,
+    }),
+    [transactions, userInfo, accountInfo, currentBalance, loading, error, addTransaction, updateTransaction, deleteTransaction, getLatestTransactions]
+  );
   return (
     <StatementContext.Provider
-      value={{
-        transactions,
-        userInfo,
-        currentBalance,
-        setTransactions,
-        addTransaction,
-        updateTransaction,
-        deleteTransaction,
-        getLatestTransactions,
-        calculateBalance,
-      }}
+      value={value}
     >
       {children}
     </StatementContext.Provider>

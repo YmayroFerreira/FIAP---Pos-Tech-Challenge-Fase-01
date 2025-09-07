@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useStatement } from "@/context/StatementContext";
 import TransactionForm from "./TransactionForm";
@@ -14,11 +14,39 @@ export default function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
+<<<<<<< Updated upstream:src/core/components/Statement.tsx
 }: StatementModel) {
   const { transactions, deleteTransaction } = useStatement();
+=======
+}: Readonly<Props>) {
+
+  // const { transactions, deleteTransaction } = useStatement();
+  
+  const { transactions, loading, error } = useStatement();
+>>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
   const [page, setPage] = useState(1);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    type: "",
+    startDate: "",
+    endDate: "",
+  });
+
+  const handleRemoveFilter = (filterKey: keyof typeof advancedFilters) => {
+    setAdvancedFilters((prev) => ({ ...prev, [filterKey]: "" }));
+  };
+
+  const handleClearAllFilters = () => {
+    setSearchQuery("");
+    setAdvancedFilters({
+      type: "",
+      startDate: "",
+      endDate: "",
+    });
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -34,8 +62,8 @@ export default function Statement({
     });
   };
 
-  const formatTransactionStyle = (type: "Entry" | "Exit") => {
-    return type === "Entry" ? "text-green-600" : "text-red-600";
+  const formatTransactionStyle = (type: "Credit" | "Debit") => {
+    return type === "Credit" ? "text-green-600" : "text-red-600";
   };
 
   const formatCurrency = (amount: number) => {
@@ -48,7 +76,8 @@ export default function Statement({
   const handleDelete = (id: string) => {
     const isConfirmed = confirm("Tem certeza que deseja excluir este item?");
     if (isConfirmed) {
-      deleteTransaction(id);
+      // deleteTransaction(id);
+      console.log(`Deletando transação com o ID: ${id}`);
     }
   };
 
@@ -61,14 +90,48 @@ export default function Statement({
   };
 
   const sortedTransactions = [...transactions].sort((a, b) => {
-    return parseInt(b.id) - parseInt(a.id);
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
-  const filteredTransactions = showLatest
-    ? sortedTransactions.slice(0, showLatest)
-    : sortedTransactions;
+  const filteredTransactions = sortedTransactions.filter((transaction) => {
+    // Aplica filtros apenas na visualização paginada
+    if (isPaginated) {
+      // Filtro de pesquisa rápida por descrição
+      if (
+        searchQuery &&
+        !transaction.accountId
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
 
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+      // Filtros avançados
+      if (
+        advancedFilters.type &&
+        transaction.type !== advancedFilters.type
+      ) {
+        return false;
+      }
+      const transactionDate = transaction.date.split("T")[0];
+      if (
+        advancedFilters.startDate &&
+        transactionDate < advancedFilters.startDate
+      ) {
+        return false;
+      }
+      if (advancedFilters.endDate && transactionDate > advancedFilters.endDate) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const finalTransactions = showLatest
+    ? filteredTransactions.slice(0, showLatest)
+    : filteredTransactions;
+
+  const totalPages = Math.ceil(finalTransactions.length / itemsPerPage);
 
   useEffect(() => {
     if (isPaginated && totalPages > 0 && page > totalPages) {
@@ -77,8 +140,15 @@ export default function Statement({
   }, [totalPages, page, isPaginated]);
 
   const displayTransactions = isPaginated
-    ? filteredTransactions.slice((page - 1) * itemsPerPage, page * itemsPerPage)
-    : filteredTransactions;
+    ? finalTransactions.slice((page - 1) * itemsPerPage, page * itemsPerPage)
+    : finalTransactions;
+  if (loading) {
+    return <p className="text-gray-600 text-center py-4">Carregando transações...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600 text-center py-4">Erro ao carregar transações: {error}</p>;
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md w-full">
@@ -96,6 +166,73 @@ export default function Statement({
         )}
       </div>
 
+      {isPaginated && (
+        <>
+          <div className="flex items-center mb-4 gap-4">
+            <input
+              type="text"
+              placeholder="Pesquisar por descrição..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-grow h-10 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
+            />
+            <button
+              onClick={() => setShowAdvancedSearch(true)}
+              className="h-10 px-4 bg-bb-green text-white font-semibold rounded-md hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
+              <MagnifyingGlassIcon className="size-5" /> Pesquisa Avançada
+            </button>
+          </div>
+
+          {/* Disclaimers for active filters */}
+          <div className="flex items-center flex-wrap gap-2 mb-4 min-h-[26px]">
+            {searchQuery && (
+              <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                Busca: &quot;{searchQuery}&quot;
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="ml-2 text-gray-500 hover:text-gray-900 font-bold"
+                >
+                  &times;
+                </button>
+              </span>
+            )}
+            {advancedFilters.type && (
+              <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                Tipo: {advancedFilters.type === 'Credit' ? 'Entrada' : 'Saída'}
+                <button onClick={() => handleRemoveFilter('type')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                  &times;
+                </button>
+              </span>
+            )}
+            {advancedFilters.startDate && (
+              <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                De: {formatDate(advancedFilters.startDate)}
+                <button onClick={() => handleRemoveFilter('startDate')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                  &times;
+                </button>
+              </span>
+            )}
+            {advancedFilters.endDate && (
+              <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                Até: {formatDate(advancedFilters.endDate)}
+                <button onClick={() => handleRemoveFilter('endDate')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                  &times;
+                </button>
+              </span>
+            )}
+            {(searchQuery ||
+              Object.values(advancedFilters).some((v) => v)) && (
+              <button
+                onClick={handleClearAllFilters}
+                className="text-xs text-bb-red underline hover:no-underline ml-2 font-semibold"
+              >
+                Limpar Filtros
+              </button>
+            )}
+          </div>
+        </>
+      )}
       {displayTransactions.length === 0 ? (
         <Paragraph
           label="Nenhuma transação encontrada."
@@ -114,10 +251,14 @@ export default function Statement({
                   className="text-xs text-bb-light-green capitalize mb-0.8 font-semibold"
                 />
                 <div className="flex justify-between items-center">
+<<<<<<< Updated upstream:src/core/components/Statement.tsx
                   <Paragraph
                     label={`${transaction.description}`}
                     className="text-bb-black"
                   />
+=======
+                  <p className="text-bb-black">{transaction.accountId}</p>
+>>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
                   <div className="text-right flex-shrink-0">
                     <Paragraph
                       label={`${formatDate(transaction.date)}`}
@@ -134,7 +275,14 @@ export default function Statement({
                         ? formatTransactionStyle(transaction.type)
                         : ""
                     }`}
+<<<<<<< Updated upstream:src/core/components/Statement.tsx
                   ></Paragraph>
+=======
+                  >
+                    {transaction.type === "Credit" ? "+" : "-"}{" "}
+                    {formatCurrency(Math.abs(transaction.value))}
+                  </p>
+>>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
                   {isPaginated && (
                     <div className="flex justify-end space-x-2">
                       <div
@@ -190,6 +338,64 @@ export default function Statement({
               onCancel={handleCancelEdit}
               isModal={true}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Search Modal */}
+      {showAdvancedSearch && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <h3 className="text-lg font-bold mb-4">Pesquisa Avançada</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tipo de Transação
+                </label>
+                <select
+                  value={advancedFilters.type}
+                  onChange={(e) =>
+                    setAdvancedFilters({ ...advancedFilters, type: e.target.value })
+                  }
+                  className="mt-1 block w-full h-10 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
+                >
+                  <option value="">Todos</option>
+                  <option value="Credit">Entrada</option>
+                  <option value="Debit">Saída</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Data de Início
+                </label>
+                <input
+                  type="date"
+                  value={advancedFilters.startDate}
+                  onChange={(e) =>
+                    setAdvancedFilters({ ...advancedFilters, startDate: e.target.value })
+                  }
+                  className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Data de Fim
+                </label>
+                <input
+                  type="date"
+                  value={advancedFilters.endDate}
+                  onChange={(e) =>
+                    setAdvancedFilters({ ...advancedFilters, endDate: e.target.value })
+                  }
+                  className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button onClick={() => setShowAdvancedSearch(false)} className="px-4 py-2 bg-bb-green text-white rounded-md hover:opacity-90">
+                Aplicar Filtros
+              </button>
+            </div>
           </div>
         </div>
       )}
