@@ -14,16 +14,11 @@ export default function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
-<<<<<<< Updated upstream:src/core/components/Statement.tsx
 }: StatementModel) {
-  const { transactions, deleteTransaction } = useStatement();
-=======
-}: Readonly<Props>) {
 
   // const { transactions, deleteTransaction } = useStatement();
   
   const { transactions, loading, error } = useStatement();
->>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
   const [page, setPage] = useState(1);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -251,14 +246,7 @@ export default function Statement({
                   className="text-xs text-bb-light-green capitalize mb-0.8 font-semibold"
                 />
                 <div className="flex justify-between items-center">
-<<<<<<< Updated upstream:src/core/components/Statement.tsx
-                  <Paragraph
-                    label={`${transaction.description}`}
-                    className="text-bb-black"
-                  />
-=======
                   <p className="text-bb-black">{transaction.accountId}</p>
->>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
                   <div className="text-right flex-shrink-0">
                     <Paragraph
                       label={`${formatDate(transaction.date)}`}
@@ -268,21 +256,14 @@ export default function Statement({
                 </div>
                 <div className="flex justify-between items-center">
                   <Paragraph
-                    label={`${transaction.type === "Entry" ? "+" : "-"}${" "}
-                    ${formatCurrency(transaction.amount)}`}
+                    label={`${transaction.type === "Credit" ? "+" : "-"}${" "}
+                    ${formatCurrency(transaction.value)}`}
                     className={`justify-start font-semibold ${
                       isPaginated
                         ? formatTransactionStyle(transaction.type)
                         : ""
                     }`}
-<<<<<<< Updated upstream:src/core/components/Statement.tsx
                   ></Paragraph>
-=======
-                  >
-                    {transaction.type === "Credit" ? "+" : "-"}{" "}
-                    {formatCurrency(Math.abs(transaction.value))}
-                  </p>
->>>>>>> Stashed changes:src/app/components/banking/Statement.tsx
                   {isPaginated && (
                     <div className="flex justify-end space-x-2">
                       <div
