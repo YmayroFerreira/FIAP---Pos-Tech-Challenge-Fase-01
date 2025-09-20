@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { SelectModel } from "@/shared/models/Select.model";
 import Select from "@/shared/components/select/Select";
+import { SelectModel } from "@/shared/models/Select.model";
+import type { Meta, StoryObj } from "@storybook/nextjs";
 
 const meta: Meta<typeof Select> = {
   title: "Components/Select",

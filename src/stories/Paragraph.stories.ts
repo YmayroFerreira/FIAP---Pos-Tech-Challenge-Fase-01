@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { ParagraphModel } from "@/shared/models/Paragraph.model";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
+import { ParagraphModel } from "@/shared/models/Paragraph.model";
+import type { Meta, StoryObj } from "@storybook/nextjs";
 
 const meta: Meta<typeof Paragraph> = {
   title: "Components/Paragraph",

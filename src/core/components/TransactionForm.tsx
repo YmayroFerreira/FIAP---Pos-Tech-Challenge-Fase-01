@@ -6,18 +6,9 @@ import { useRef, useState, useEffect } from "react";
 import { TransactionModel } from "../models";
 import Input from "@/shared/components/input/Input";
 import Button from "@/shared/components/button/Button";
-import Select from "@/shared/components/select/Select";
 
-const transactionOptions = [
-  {
-    option: "Entrada",
-    value: "Entry",
-  },
-  {
-    option: "Saída",
-    value: "Exit",
-  },
-];
+import type { transactionType } from "@/context/StatementContext";
+import { ChevronDownIcon } from '@heroicons/react/16/solid';
 
 export default function TransactionForm({
   editingTransaction,
@@ -36,10 +27,10 @@ export default function TransactionForm({
   useEffect(() => {
     if (editingTransaction) {
       setTransactionType(editingTransaction.type);
-      setDescription(editingTransaction.description);
+      setDescription(editingTransaction.accountId);
 
       setTimeout(() => {
-        setValue(editingTransaction.amount);
+        setValue(editingTransaction.value);
       }, 100);
     }
   }, [editingTransaction, setValue]);
@@ -59,9 +50,9 @@ export default function TransactionForm({
     }
 
     const transactionData = {
-      type: transactionType as "Entry" | "Exit",
-      amount: numericValue,
-      description: description.trim(),
+      accountId: description,
+      type: transactionType as transactionType,
+      value: numericValue,
       date: editingTransaction?.date || new Date().toISOString().split("T")[0],
     };
 
@@ -110,17 +101,26 @@ export default function TransactionForm({
         )}
       </div>
 
-      <div className="space-y-4 sm:space-y-6">
-        <div className="w-full">
-          <Select
-            className="w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
-            name="typeOfTransaction"
-            value={transactionType}
-            onChange={(e) => setTransactionType(e.target.value)}
-            required
-            defaultTextOption="Selecione o tipo de transação"
-            options={transactionOptions}
-          />
+      <div className="space-y-6">
+        <div className="flex gap-8">
+          <div className="relative max-w-[355px] w-full">
+            <select
+              className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
+              name="typeOfTransaction"
+              value={transactionType}
+              onChange={(e) => setTransactionType(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Selecione o tipo de transação
+              </option>
+              <option value="Credit">Entrada</option>
+              <option value="Debit">Saída</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <ChevronDownIcon className="h-5 w-5" />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:gap-8 space-y-4 sm:space-y-0">
