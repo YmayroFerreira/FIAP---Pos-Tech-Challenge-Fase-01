@@ -1,6 +1,14 @@
 # Stage 1: O estágio de construção
 FROM node:18-slim AS builder
 
+# Declara os argumentos que serão recebidos do docker-compose
+ARG STORE_HOST
+ARG STORE_PORT
+
+# Torna os argumentos disponíveis como variáveis de ambiente para os comandos seguintes (como `npm run build`)
+ENV STORE_HOST=${STORE_HOST}
+ENV STORE_PORT=${STORE_PORT}
+
 WORKDIR /app
 
 COPY package*.json ./ 
