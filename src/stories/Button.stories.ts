@@ -1,6 +1,6 @@
 import Button from "@/shared/components/button/Button";
 import { ButtonModel } from "@/shared/models/Button.model";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/nextjs";
 
 const meta: Meta<ButtonModel> = {
   title: "Components/Button",
@@ -9,7 +9,7 @@ const meta: Meta<ButtonModel> = {
     label: { control: "text" },
     variant: {
       control: "radio",
-      options: ["primary", "secondary", "disabled"],
+      options: ["primary", "secondary", "tertiary", "disabled"],
     },
     size: {
       control: "radio",

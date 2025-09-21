@@ -1,6 +1,6 @@
-import React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
 import Input from "@/shared/components/input/Input";
+import type { Meta, StoryObj } from "@storybook/nextjs";
+import React from "react";
 
 const meta: Meta<React.ComponentProps<typeof Input>> = {
   title: "Components/Input",
