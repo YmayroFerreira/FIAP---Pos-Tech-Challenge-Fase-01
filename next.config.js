@@ -5,7 +5,10 @@
 // Fora do Docker, pode ser 'localhost'.
 const STORE_HOST = process.env.STORE_HOST || "localhost";
 const STORE_PORT = process.env.STORE_PORT || 3002;
+const HOMEPAGE_PORT = process.env.HOMEPAGE_PORT || 3003;
+const HOMEPAGE_HOST = process.env.HOMEPAGE_HOST || 'localhost';
 const STORE_URL = `http://${STORE_HOST}:${STORE_PORT}`;
+const HOMEPAGE_URL = `http://${HOMEPAGE_HOST}:${HOMEPAGE_PORT}`;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -22,6 +25,11 @@ const nextConfig = {
         source: "/store/:path*",
         destination: `${STORE_URL}/store/:path*`,
       },
+      {
+        source: "/homepage",
+        destination: `${HOMEPAGE_URL}/homepage`,
+      },
+    
     ];
   },
 };
