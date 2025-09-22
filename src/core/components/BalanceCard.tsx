@@ -68,6 +68,7 @@ export default function BalanceCard() {
         <div>
           <p className="font-semibold mb-2">Olá, {userInfo.username}! :)</p>
           <a href="/store" className="text-white underline hover:opacity-80">Visitar Loja</a>
+          <a href="/homepage" className="text-white underline hover:opacity-80">HomePage</a>
           <p className="text-sm text-base capitalize">{getFormattedDate()}</p>
         </div>
 
