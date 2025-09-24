@@ -57,7 +57,7 @@ export const getStatement = async (accountId: string) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
-    },
+    }
   );
   return response.json();
 };

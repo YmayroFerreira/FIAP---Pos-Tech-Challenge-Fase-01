@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useStatement } from "@/context/StatementContext";
+import { useStatementStore } from "@/store/StatementStore";
+// import { useEffect } from "react";
 
 export default function Header() {
-  const { userInfo } = useStatement();
+  const { userInfo } = useStatementStore();
 
   return (
     <div className="bg-gradient-bb text-white p-4 flex justify-end items-center gap-3">

@@ -1,24 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import {
+  PencilIcon,
+  TrashIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { useStatement } from "@/context/StatementContext";
 import TransactionForm from "./TransactionForm";
-import type { Transaction } from "@/context/StatementContext";
+import type { Transaction } from "@/store/StatementStore";
 import { StatementModel } from "../models";
 import Button from "@/shared/components/button/Button";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
+import { useStatementStore } from "@/store/StatementStore";
 
 export default function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
 }: StatementModel) {
-
-  // const { transactions, deleteTransaction } = useStatement();
-  
-  const { transactions, loading, error } = useStatement();
+  const { transactions, loading, error } = useStatementStore();
   const [page, setPage] = useState(1);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -94,18 +95,13 @@ export default function Statement({
       // Filtro de pesquisa rápida por descrição
       if (
         searchQuery &&
-        !transaction.accountId
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
+        !transaction.id.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false;
       }
 
       // Filtros avançados
-      if (
-        advancedFilters.type &&
-        transaction.type !== advancedFilters.type
-      ) {
+      if (advancedFilters.type && transaction.type !== advancedFilters.type) {
         return false;
       }
       const transactionDate = transaction.date.split("T")[0];
@@ -115,7 +111,10 @@ export default function Statement({
       ) {
         return false;
       }
-      if (advancedFilters.endDate && transactionDate > advancedFilters.endDate) {
+      if (
+        advancedFilters.endDate &&
+        transactionDate > advancedFilters.endDate
+      ) {
         return false;
       }
     }
@@ -138,11 +137,17 @@ export default function Statement({
     ? finalTransactions.slice((page - 1) * itemsPerPage, page * itemsPerPage)
     : finalTransactions;
   if (loading) {
-    return <p className="text-gray-600 text-center py-4">Carregando transações...</p>;
+    return (
+      <p className="text-gray-600 text-center py-4">Carregando transações...</p>
+    );
   }
 
   if (error) {
-    return <p className="text-red-600 text-center py-4">Erro ao carregar transações: {error}</p>;
+    return (
+      <p className="text-red-600 text-center py-4">
+        Erro ao carregar transações: {error}
+      </p>
+    );
   }
 
   return (
@@ -194,8 +199,11 @@ export default function Statement({
             )}
             {advancedFilters.type && (
               <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                Tipo: {advancedFilters.type === 'Credit' ? 'Entrada' : 'Saída'}
-                <button onClick={() => handleRemoveFilter('type')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                Tipo: {advancedFilters.type === "Credit" ? "Entrada" : "Saída"}
+                <button
+                  onClick={() => handleRemoveFilter("type")}
+                  className="ml-2 text-gray-500 hover:text-gray-900 font-bold"
+                >
                   &times;
                 </button>
               </span>
@@ -203,7 +211,10 @@ export default function Statement({
             {advancedFilters.startDate && (
               <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
                 De: {formatDate(advancedFilters.startDate)}
-                <button onClick={() => handleRemoveFilter('startDate')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                <button
+                  onClick={() => handleRemoveFilter("startDate")}
+                  className="ml-2 text-gray-500 hover:text-gray-900 font-bold"
+                >
                   &times;
                 </button>
               </span>
@@ -211,13 +222,15 @@ export default function Statement({
             {advancedFilters.endDate && (
               <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
                 Até: {formatDate(advancedFilters.endDate)}
-                <button onClick={() => handleRemoveFilter('endDate')} className="ml-2 text-gray-500 hover:text-gray-900 font-bold">
+                <button
+                  onClick={() => handleRemoveFilter("endDate")}
+                  className="ml-2 text-gray-500 hover:text-gray-900 font-bold"
+                >
                   &times;
                 </button>
               </span>
             )}
-            {(searchQuery ||
-              Object.values(advancedFilters).some((v) => v)) && (
+            {(searchQuery || Object.values(advancedFilters).some((v) => v)) && (
               <button
                 onClick={handleClearAllFilters}
                 className="text-xs text-bb-red underline hover:no-underline ml-2 font-semibold"
@@ -246,7 +259,7 @@ export default function Statement({
                   className="text-xs text-bb-light-green capitalize mb-0.8 font-semibold"
                 />
                 <div className="flex justify-between items-center">
-                  <p className="text-bb-black">{transaction.accountId}</p>
+                  <p className="text-bb-black">{transaction.category}</p>
                   <div className="text-right flex-shrink-0">
                     <Paragraph
                       label={`${formatDate(transaction.date)}`}
@@ -336,7 +349,10 @@ export default function Statement({
                 <select
                   value={advancedFilters.type}
                   onChange={(e) =>
-                    setAdvancedFilters({ ...advancedFilters, type: e.target.value })
+                    setAdvancedFilters({
+                      ...advancedFilters,
+                      type: e.target.value,
+                    })
                   }
                   className="mt-1 block w-full h-10 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
                 >
@@ -353,7 +369,10 @@ export default function Statement({
                   type="date"
                   value={advancedFilters.startDate}
                   onChange={(e) =>
-                    setAdvancedFilters({ ...advancedFilters, startDate: e.target.value })
+                    setAdvancedFilters({
+                      ...advancedFilters,
+                      startDate: e.target.value,
+                    })
                   }
                   className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
                 />
@@ -366,14 +385,20 @@ export default function Statement({
                   type="date"
                   value={advancedFilters.endDate}
                   onChange={(e) =>
-                    setAdvancedFilters({ ...advancedFilters, endDate: e.target.value })
+                    setAdvancedFilters({
+                      ...advancedFilters,
+                      endDate: e.target.value,
+                    })
                   }
                   className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
                 />
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
-              <button onClick={() => setShowAdvancedSearch(false)} className="px-4 py-2 bg-bb-green text-white rounded-md hover:opacity-90">
+              <button
+                onClick={() => setShowAdvancedSearch(false)}
+                className="px-4 py-2 bg-bb-green text-white rounded-md hover:opacity-90"
+              >
                 Aplicar Filtros
               </button>
             </div>

@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { useStatement } from "@/context/StatementContext";
+import { useStatementStore } from "@/store/StatementStore";
 
 export default function BalanceCard() {
-  const { userInfo, currentBalance, loading, error } = useStatement();
+  const { userInfo, currentBalance, loading, error } = useStatementStore();
   const [showBalance, setShowBalance] = useState(true);
 
   const toggleVisibility = () => {
@@ -57,7 +57,10 @@ export default function BalanceCard() {
   if (error || !userInfo) {
     return (
       <div className="bg-red-200 text-red-800 p-6 w-full text-lg rounded-lg">
-        <p>Não foi possível carregar as informações do saldo. Tente novamente mais tarde.</p>
+        <p>
+          Não foi possível carregar as informações do saldo. Tente novamente
+          mais tarde.
+        </p>
       </div>
     );
   }
@@ -67,8 +70,12 @@ export default function BalanceCard() {
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 p-4">
         <div>
           <p className="font-semibold mb-2">Olá, {userInfo.username}! :)</p>
-          <a href="/store" className="text-white underline hover:opacity-80">Visitar Loja</a>
-          <a href="/homepage" className="text-white underline hover:opacity-80">HomePage</a>
+          <a href="/store" className="text-white underline hover:opacity-80">
+            Visitar Loja
+          </a>
+          <a href="/homepage" className="text-white underline hover:opacity-80">
+            HomePage
+          </a>
           <p className="text-sm text-base capitalize">{getFormattedDate()}</p>
         </div>
 
@@ -81,7 +88,9 @@ export default function BalanceCard() {
             />
           </div>
           <div className="w-32 h-px bg-bb-red mb-2 md:ml-auto"></div>
-          <p className="text-sm text-base mb-2 whitespace-nowrap">{userInfo.email}</p>
+          <p className="text-sm text-base mb-2 whitespace-nowrap">
+            {userInfo.email}
+          </p>
 
           {showBalance ? (
             <p className="text-2xl font-semibold">
