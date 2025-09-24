@@ -14,7 +14,7 @@
   --color-bb-grey-300: #cbcbcb;
   --color-bb-white: #f8f8f8;
   --color-bb-black: #000000;
-  --gradient-bb: linear-gradient(to bottom, #004d61 100%, #ffffff 100%);
+  --color-gradient-bb: #004d61;
 }
 @theme inline {
   --color-background: var(--background);
@@ -28,7 +28,6 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --gradient-bb: linear-gradient(to bottom, #004d61 0%, #ffffff 100%);
   }
 }
 
@@ -41,6 +40,3 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.bg-gradient-bb {
-  background-image: var(--gradient-bb);
-}
