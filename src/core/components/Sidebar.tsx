@@ -38,7 +38,7 @@ export default function Sidebar() {
                         ${
                           isActive
                             ? "md:border-bb-light-green"
-                            : "md:border-bb-back"
+                            : "md:border-bb-black"
                         }`}
             >
               <Link
