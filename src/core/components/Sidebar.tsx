@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { name: "Início", href: "/" },
   { name: "Transações", href: "/transactions" },
+  { name: "homepage", href: "/homepage" },
 ];
 
 export default function Sidebar() {
@@ -38,7 +39,7 @@ export default function Sidebar() {
                         ${
                           isActive
                             ? "md:border-bb-light-green"
-                            : "md:border-bb-back"
+                            : "md:border-bb-black md:text-black"
                         }`}
             >
               <Link
