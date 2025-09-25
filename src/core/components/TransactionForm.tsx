@@ -81,28 +81,30 @@ export default function TransactionForm({
     setValue(0);
   }
 
-  const containerClasses = isModal
-    ? "bg-white p-4 sm:p-6 rounded-lg shadow-lg"
-    : "bg-white shadow-md p-4 sm:p-8 rounded-xl";
+  const containerClasses = "bg-neutral-grey2 rounded-default flex flex-col bg-custom-pixel2";
 
   return (
     <section className={containerClasses}>
-      <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <h2 className="font-bold text-gray-800 text-xl sm:text-2xl">
-          {isEditMode ? "Editar transação" : "Nova transação"}
-        </h2>
-        {isModal && onCancel && (
-          <button
-            onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700 text-xl"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+      <div className="p-[24px]">
+				<form
+					onSubmit={handleSubmit}
+					className="flex items-center flex-col sm:items-start"
+				>
+          <div className="w-full flex justify-between items-center relative">
 
-      <div className="space-y-6">
-        <div className="flex gap-8">
+            <h2 className="font-semibold text-xl text-primary mb-[32px]">
+              {isEditMode ? "Editar transação" : "Nova transação"}
+            </h2>
+            {isModal && onCancel && (
+            <button
+              onClick={onCancel}
+              className="text-gray-500 hover:text-gray-700 text-xl absolute top-0 right-0 hover:cursor-pointer"
+            >
+              ✕
+            </button>
+          )}
+          </div>
+
           <div className="relative max-w-[355px] w-full">
             <select
               className="max-w-[355px] w-full h-12 px-4 pr-10 text-gray-800 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green appearance-none cursor-pointer"
@@ -121,10 +123,9 @@ export default function TransactionForm({
               <ChevronDownIcon className="h-5 w-5" />
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row sm:gap-8 space-y-4 sm:space-y-0">
-          <div className="flex-1 sm:max-w-[355px]">
+          <div className="flex w-full flex-col sm:flex-row sm:gap-8 space-y-4 sm:space-y-0">
+          <div className="sm:max-w-[355px] md:w-[250px] lg:w-[250px] mt-[32px]">
             <Input
               type="text"
               className="w-full h-12 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
@@ -137,7 +138,7 @@ export default function TransactionForm({
               label="Descrição"
             />
           </div>
-          <div className="flex-1 sm:max-w-[355px]">
+          <div className="w-full sm:max-w-[355px] md:w-[250px] lg:w-[250px] mt-[32px] ">
             <Input
               ref={inputRef}
               inputMode="decimal"
@@ -152,9 +153,9 @@ export default function TransactionForm({
           </div>
         </div>
 
-        <div className="w-full">
+        <div className="w-full mt-[32px]">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:max-w-[355px]">
-            <div className="flex-1">
+            <div>
               <Button
                 type="button"
                 label={
@@ -165,7 +166,7 @@ export default function TransactionForm({
               />
             </div>
             {isEditMode && onCancel && (
-              <div className="flex-1">
+              <div>
                 <Button
                   variant="secondary"
                   type="button"
@@ -176,7 +177,11 @@ export default function TransactionForm({
             )}
           </div>
         </div>
-      </div>
+
+        <div className="h-[264px] sm:h-[169px]"></div>
+					
+				</form>
+			</div>
     </section>
   );
 }

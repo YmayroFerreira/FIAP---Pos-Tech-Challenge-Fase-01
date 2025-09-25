@@ -7,7 +7,7 @@ const Input = forwardRef<HTMLInputElement, InputModel>(
       <div className="flex flex-col gap-2">
         {label && (
           <label
-            className="font-medium text-gray-700 text-sm"
+            className="text-md text-primary font-semibold"
             htmlFor={props.id}
           >
             {label}

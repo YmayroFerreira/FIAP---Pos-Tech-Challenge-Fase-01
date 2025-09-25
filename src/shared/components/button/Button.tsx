@@ -2,7 +2,7 @@ import { ButtonModel } from "../../models/Button.model";
 
 const Button = ({ size, variant, label, ...props }: ButtonModel) => {
   const baseClasses =
-    "font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200 transition-opacity py-3 box-border";
+    "font-semibold rounded-md hover:opacity-90 cursor-pointer duration-200 transition-opacity py-3 box-border border-2";
 
   const variantClasses =
     variant === "secondary"
@@ -11,7 +11,7 @@ const Button = ({ size, variant, label, ...props }: ButtonModel) => {
       ? "bg-transparent text-bb-green"
       : variant === "disabled"
       ? "bg-gray-300 text-white cursor-none"
-      : "bg-bb-green text-white";
+      : "bg-bb-green text-white border-bb-green";
 
   const sizeClasses =
     size === "sm"

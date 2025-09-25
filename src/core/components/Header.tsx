@@ -1,22 +1,25 @@
 "use client";
 
-import Image from "next/image";
 import { useStatement } from "@/context/StatementContext";
+import ButtonIcon from "@/shared/components/ui/button-icon/ButtonIcon";
+import { FaRegUser } from "react-icons/fa6";
 
 export default function Header() {
-  const { userInfo } = useStatement();
+	const { userInfo } = useStatement();
 
-  return (
-    <div className="bg-gradient-bb text-white p-4 flex justify-end items-center gap-3">
-      <span>{userInfo?.username}</span>
-      <Image
-        className="pr-3"
-        src="/user-icon.svg"
-        alt="User Icon"
-        width={40}
-        height={40}
-        priority
-      />
-    </div>
-  );
+	return (
+		<header className="w-full h-[96px] bg-primary flex justify-center">
+			<div className="w-full max-w-[1200px] flex justify-end items-center gap-[40px] p-[21px]">
+				<span className="text-sm font-semibold text-white">
+					{/* {userInfo?.username} */}
+          John Doe 
+          {/* !remover essa texto @walteann */}
+				</span>
+				<ButtonIcon
+					className="border-accent"
+					icon={<FaRegUser className="text-[20px] text-accent" />}
+				/>
+			</div>
+		</header>
+	);
 }
