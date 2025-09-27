@@ -4,13 +4,18 @@ export interface createTransactionData {
   accountId: string;
   value: number;
   type: "Credit" | "Debit";
+  from?: string;
+  to?: string;
+  anexo?: string;
+  category: string;
+  description: string;
 }
 
 // Helper para fazer requisições autenticadas
 const fetchAuthenticated = async (path: string, options: RequestInit = {}) => {
   if (!authToken) {
     console.error(
-      "Erro: Token de autenticação não encontrado. Faça o login primeiro.",
+      "Erro: Token de autenticação não encontrado. Faça o login primeiro."
     );
     return null;
   }
@@ -37,7 +42,7 @@ export const getAccount = async () => {
 };
 
 export const createTransaction = async (
-  transactionData: createTransactionData,
+  transactionData: createTransactionData
 ) => {
   const response = await fetchAuthenticated("/account/transaction", {
     method: "POST",
