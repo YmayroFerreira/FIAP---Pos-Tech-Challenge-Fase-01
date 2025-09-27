@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useStatement } from "@/context/StatementContext"; // Use the context instead
+import { useStatementStore } from "@/store/StatementStore";
 
 // Chart data interface
 interface ChartData {
@@ -31,7 +31,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
   title = "Extrato da Conta",
 }) => {
   // Get data from context instead of making API calls
-  const { transactions, loading, error } = useStatement();
+  const { transactions, loading, error } = useStatementStore();
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("pt-BR", {
@@ -68,10 +68,14 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
 
   // Calculate totals using useMemo for performance
   const { totalEntradas, totalSaidas, saldoAtual } = useMemo(() => {
-    const totalEntradas = chartData.reduce((sum, item) => sum + item.entradas, 0);
+    const totalEntradas = chartData.reduce(
+      (sum, item) => sum + item.entradas,
+      0
+    );
     const totalSaidas = chartData.reduce((sum, item) => sum + item.saidas, 0);
-    const saldoAtual = chartData.length > 0 ? chartData[chartData.length - 1].saldo : 0;
-    
+    const saldoAtual =
+      chartData.length > 0 ? chartData[chartData.length - 1].saldo : 0;
+
     return { totalEntradas, totalSaidas, saldoAtual };
   }, [chartData]);
 
@@ -104,7 +108,6 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
     return null;
   };
 
-
   const renderChart = (): React.ReactElement => {
     const commonProps = {
       data: chartData,
@@ -113,9 +116,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
 
     return (
       <LineChart {...commonProps}>
-        {showGrid && (
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        )}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />}
         <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#666" />
         <YAxis
           tick={{ fontSize: 12 }}
