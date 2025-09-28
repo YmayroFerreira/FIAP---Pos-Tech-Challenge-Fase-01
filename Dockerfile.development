@@ -1,0 +1,33 @@
+# Dockerfile.development - Para desenvolvimento com live reload
+FROM node:18-slim
+
+# Argumentos para build time
+ARG STORE_HOST
+ARG STORE_PORT
+ARG HOMEPAGE_HOST
+ARG HOMEPAGE_PORT
+ARG NEXT_PUBLIC_API_URL
+
+# Variáveis de ambiente
+ENV STORE_HOST=${STORE_HOST}
+ENV STORE_PORT=${STORE_PORT}
+ENV HOMEPAGE_HOST=${HOMEPAGE_HOST}
+ENV HOMEPAGE_PORT=${HOMEPAGE_PORT}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+# Copia apenas package*.json primeiro (para cache de layers)
+COPY package*.json ./
+
+# Instala dependências (incluindo devDependencies)
+RUN npm install
+
+# Copia o resto do código (será sobrescrito pelo volume)
+COPY . .
+
+EXPOSE 3000
+
+# Comando para desenvolvimento
+CMD ["npm", "run", "dev"]
