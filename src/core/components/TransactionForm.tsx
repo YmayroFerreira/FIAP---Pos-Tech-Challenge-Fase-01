@@ -10,6 +10,7 @@ import type { transactionType } from "@/store/StatementStore";
 import FileUpload from "@/shared/components/fileUpload/FileUpload";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
 import { useStatementStore } from "@/store/StatementStore";
+import { message } from "@/shared/components/ui/message/message";
 
 const transactionOptions = [
 	{
@@ -68,24 +69,20 @@ export default function TransactionForm({
 		const valueInput = inputRef.current;
 		if (!valueInput) return;
 
-		console.log({
-			transactionType: !transactionType,
-			numericValue: !numericValue,
-			numericValue2: numericValue! <= 0,
-			valueError,
-		});
 		if (
 			!transactionType ||
 			!numericValue ||
 			numericValue <= 0 ||
 			valueError
 		) {
-			alert("Preencha todos os campos corretamente.");
+			message.warning("Preencha todos os campos corretamente.");
 			return;
 		}
 
 		if (!description.trim()) {
-			alert("Por favor, adicione uma descrição para a transação.");
+			message.warning(
+				"Por favor, adicione uma descrição para a transação."
+			);
 			return;
 		}
 
@@ -108,11 +105,14 @@ export default function TransactionForm({
 		try {
 			if (isEditMode && editingTransaction) {
 				updateTransaction(editingTransaction.id, transactionData);
-				alert("Transação atualizada com sucesso!");
+				message.success("Transação atualizada com sucesso!");
 				onCancel?.();
 			} else {
 				addTransaction(transactionData);
-				alert("Transação adicionada com sucesso!");
+				message.success(
+					"Transação adicionada com sucesso!",
+					"Você pode ver os detalhes na sua lista de extrato."
+				);
 			}
 
 			if (!isEditMode) {
@@ -120,7 +120,7 @@ export default function TransactionForm({
 			}
 		} catch (error) {
 			console.error("Error processing transaction:", error);
-			alert("Erro ao processar transação. Tente novamente.");
+			message.error("Erro ao processar transação. Tente novamente.");
 		}
 	}
 

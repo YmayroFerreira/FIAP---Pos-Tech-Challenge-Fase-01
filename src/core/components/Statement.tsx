@@ -13,6 +13,7 @@ import { StatementModel } from "../models";
 import Button from "@/shared/components/button/Button";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
 import { useStatementStore } from "@/store/StatementStore";
+import ModalConfirmation from "@/shared/components/ui/modal-confirmation/ModalConfirmation";
 
 export default function Statement({
 	isPaginated = false,
@@ -58,8 +59,8 @@ export default function Statement({
 		});
 	};
 
-	const formatTransactionStyle = (type: "Credit" | "Debit") => {
-		return type === "Credit" ? "text-green-600" : "text-red-600";
+	const formatTransactionStyle = (value: number) => {
+		return value > 0 ? "text-green-600" : "text-[#FF5031]";
 	};
 
 	const formatCurrency = (amount: number) => {
@@ -70,13 +71,8 @@ export default function Statement({
 	};
 
 	const handleDelete = (id: string) => {
-		const isConfirmed = confirm(
-			"Tem certeza que deseja excluir este item?"
-		);
-		if (isConfirmed) {
-			// deleteTransaction(id);
-			console.log(`Deletando transação com o ID: ${id}`);
-		}
+		// deleteTransaction(id);
+		console.log(`Deletando transação com o ID: ${id}`);
 	};
 
 	const handleEdit = (transaction: Transaction) => {
@@ -163,7 +159,7 @@ export default function Statement({
 	}
 
 	return (
-		<div className="bg-white p-6 rounded-lg shadow-md w-full">
+		<div className="bg-white rounded-lg w-full p-[24px]">
 			<div className="flex justify-between items-center mb-4">
 				<h2 className="text-xl font-semibold text-bb-black">
 					{isPaginated ? "Transações" : "Extrato"}
@@ -192,8 +188,10 @@ export default function Statement({
 							onClick={() => setShowAdvancedSearch(true)}
 							className="h-10 px-4 bg-bb-green text-white font-semibold rounded-md hover:opacity-90 transition-opacity flex items-center gap-2"
 						>
-							<MagnifyingGlassIcon className="size-5" /> Pesquisa
-							Avançada
+							<MagnifyingGlassIcon className="size-5" />{" "}
+							<span className="hidden md:block">
+								Pesquisa Avançada
+							</span>
 						</button>
 					</div>
 
@@ -281,7 +279,8 @@ export default function Statement({
 								/>
 								<div className="flex justify-between items-center">
 									<p className="text-bb-black">
-										{transaction.category}
+										{transaction.category ??
+											"Sem Categoria"}
 									</p>
 									<div className="text-right flex-shrink-0">
 										<Paragraph
@@ -294,19 +293,11 @@ export default function Statement({
 								</div>
 								<div className="flex justify-between items-center">
 									<Paragraph
-										label={`${
-											transaction.type === "Credit"
-												? "+"
-												: "-"
-										}${" "}
-                    ${formatCurrency(transaction.value)}`}
-										className={`justify-start font-semibold ${
-											isPaginated
-												? formatTransactionStyle(
-														transaction.type
-												  )
-												: ""
-										}`}
+										label={`
+                   							${formatCurrency(transaction.value)}`}
+										className={`justify-start font-semibold ${formatTransactionStyle(
+											transaction.value
+										)}`}
 									></Paragraph>
 									{isPaginated && (
 										<div className="flex justify-end space-x-2">
@@ -318,14 +309,22 @@ export default function Statement({
 											>
 												<PencilIcon className="size-5 text-bb-white" />
 											</div>
-											<div
-												className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
-												onClick={() =>
+											<ModalConfirmation
+												titulo="Tem certeza que deseja excluir este item?"
+												descricao="Esta ação é irreversível."
+												onConfirmar={() =>
 													handleDelete(transaction.id)
 												}
 											>
-												<TrashIcon className="size-5 text-bb-white" />
-											</div>
+												{(abrirModal) => (
+													<div
+														className="w-8 h-8 bg-bb-green rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors"
+														onClick={abrirModal}
+													>
+														<TrashIcon className="size-5 text-bb-white" />
+													</div>
+												)}
+											</ModalConfirmation>
 										</div>
 									)}
 								</div>

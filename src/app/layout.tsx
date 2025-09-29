@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/core/components/Header";
 import { Inter } from "next/font/google";
 import SidebarMenu from "@/core/components/layout/SidebarMenu";
-import Statement from "@/core/components/Statement";
+import { Toaster } from "sonner";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -34,17 +34,10 @@ export default function RootLayout({
 						>
 							<SidebarMenu />
 						</aside>
-
-						<section className="flex-1 rounded-default w-full">
-							{children}
-						</section>
-
-						<aside className="w-full bg-white p-[24px] rounded-default lg:w-[282px] flex justify-center">
-							{/* <Extrato /> */}
-							<Statement showLatest={6} />
-						</aside>
+						{children}
 					</div>
 				</main>
+				<Toaster position="top-center" richColors />
 			</body>
 		</html>
 	);
