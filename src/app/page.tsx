@@ -8,25 +8,23 @@ import { useStatementStore } from "@/store/StatementStore";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { fetchData } = useStatementStore();
+	const { fetchData } = useStatementStore();
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
-      <main className="col-span-full md:col-span-7">
-        asjdmpioajidfpapjifpajipadjspijas
-        <div className="flex flex-col gap-6">
-          <BalanceCard />
-          <TransactionForm />
-          <HomePageChart />
-        </div>
-      </main>
-      <div className="col-span-full md:col-span-3">
-        <Statement showLatest={6} />
-      </div>
-    </div>
-  );
+	return (
+		<>
+			<main className="flex-1 rounded-default w-full">
+				<BalanceCard />
+				<TransactionForm />
+				<HomePageChart />
+			</main>
+
+			<aside className="w-full bg-white rounded-default lg:w-[282px] flex justify-center">
+				<Statement showLatest={6} />
+			</aside>
+		</>
+	);
 }
