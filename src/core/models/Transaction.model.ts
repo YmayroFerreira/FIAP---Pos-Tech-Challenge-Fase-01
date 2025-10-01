@@ -1,4 +1,4 @@
-import type { Transaction } from "@/context/StatementContext";
+import { Transaction } from "@/store/StatementStore";
 
 interface TransactionModel {
   editingTransaction?: Transaction;
