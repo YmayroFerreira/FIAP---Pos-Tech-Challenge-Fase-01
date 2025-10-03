@@ -179,7 +179,6 @@ export default function Statement({
             </button>
           </div>
 
-          {/* Disclaimers for active filters */}
           <div className="flex items-center flex-wrap gap-2 mb-4 min-h-[26px]">
             {searchQuery && (
               <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -326,7 +325,6 @@ export default function Statement({
         </div>
       )}
 
-      {/* Edit Modal */}
       {editingTransaction && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="max-w-2xl w-full mx-4">
@@ -339,7 +337,6 @@ export default function Statement({
         </div>
       )}
 
-      {/* Advanced Search Modal */}
       {showAdvancedSearch && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">

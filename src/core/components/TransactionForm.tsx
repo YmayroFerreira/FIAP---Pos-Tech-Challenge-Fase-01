@@ -199,7 +199,6 @@ export default function TransactionForm({
                 required
                 label="Categoria"
               />
-              {/* Show on mobile only - below Categoria */}
               {filteredCategories.length > 0 && (
                 <ul className="flex md:hidden flex-row flex-wrap mt-3 gap-3">
                   {filteredCategories.map((cat) => (
@@ -296,7 +295,6 @@ export default function TransactionForm({
               )}
             </div>
           </div>
-          {/* </div> */}
 
           <div className="h-[264px] sm:h-[169px]"></div>
         </form>
