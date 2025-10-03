@@ -1,4 +1,3 @@
-// components/FileUpload.tsx
 "use client";
 import { useDropzone } from "react-dropzone";
 import { useState } from "react";

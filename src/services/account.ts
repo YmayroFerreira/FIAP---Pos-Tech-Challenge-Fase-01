@@ -11,7 +11,6 @@ export interface createTransactionData {
   description: string;
 }
 
-// Helper para fazer requisições autenticadas
 const fetchAuthenticated = async (path: string, options: RequestInit = {}) => {
   if (!authToken) {
     console.error(
@@ -33,8 +32,6 @@ const fetchAuthenticated = async (path: string, options: RequestInit = {}) => {
 
   return response;
 };
-
-// Funções para consumir as APIs
 
 export const getAccount = async () => {
   const response = await fetchAuthenticated("/account");

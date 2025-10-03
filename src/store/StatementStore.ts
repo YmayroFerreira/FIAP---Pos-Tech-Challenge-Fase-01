@@ -45,7 +45,7 @@ interface StatementState {
   currentBalance: number;
   loading: boolean;
   error: string | null;
-  // actions
+
   fetchData: () => Promise<void>;
   addTransaction: (
     transaction: Pick<Transaction, "type" | "value"> & {
