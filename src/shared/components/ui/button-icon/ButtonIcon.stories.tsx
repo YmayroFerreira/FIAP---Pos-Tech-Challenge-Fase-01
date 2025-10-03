@@ -1,5 +1,3 @@
-// ButtonIcon.stories.tsx
-
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import ButtonIcon from "./ButtonIcon";
@@ -10,7 +8,7 @@ const meta: Meta<typeof ButtonIcon> = {
   tags: ["autodocs"],
   argTypes: {
     onClick: { action: "clicked" },
-    icon: { control: false }, // ícone será definido manualmente nos stories
+    icon: { control: false },
     className: { control: "text" },
     disabled: { control: "boolean" },
     size: {
@@ -27,7 +25,7 @@ export const Padrao: Story = {
   args: {
     icon: <FaPlus />,
     size: 40,
-    className: "bg-primary text-white hover:bg-accent"
+    className: "bg-primary text-white hover:bg-accent",
   },
 };
 
