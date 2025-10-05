@@ -4,22 +4,42 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function FileUpload({
-  onFiles,
+  onFilesBase64,
 }: {
-  onFiles: (files: File[]) => void;
+  onFilesBase64?: (base64: string[]) => void;
 }) {
   const [previews, setPreviews] = useState<string[]>([]);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
-    multiple: true,
-    onDrop: (acceptedFiles) => {
-      onFiles(acceptedFiles);
-
+    multiple: false,
+    onDrop: async (acceptedFiles) => {
       const urls = acceptedFiles.map((file) => URL.createObjectURL(file));
       setPreviews(urls);
+
+      if (onFilesBase64) {
+        const base64Files = await Promise.all(
+          acceptedFiles.map(
+            (file) =>
+              new Promise<{ file: File; base64: string }>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () =>
+                  resolve({ file, base64: reader.result as string });
+                reader.onerror = (error) => reject(error);
+              })
+          )
+        );
+        const onlyBase64 = base64Files.map((file) => file.base64);
+
+        onFilesBase64(onlyBase64);
+      }
     },
   });
+
+  const base64Loader = ({ src }: { src: string }) => {
+    return src;
+  };
 
   return (
     <div
@@ -35,11 +55,13 @@ export default function FileUpload({
         <div className="flex gap-2 mt-2 flex-wrap">
           {previews.map((src, i) => (
             <Image
+              unoptimized
               width={100}
               height={100}
               quality={70}
               key={i}
               src={src}
+              loader={base64Loader}
               alt={`preview-${i}`}
               className="w-16 h-16 rounded object-cover"
             />
