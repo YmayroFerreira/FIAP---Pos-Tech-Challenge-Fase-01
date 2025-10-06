@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { create } from "zustand";
 import {
   createTransaction,
   createTransactionData,
+  deleteTransaction,
   getAccount,
+  updateTransaction,
 } from "../services/account";
-import { loginAutomatically } from "../services/auth";
+import { setAuthToken } from "@/services/api-config";
 
 export type transactionType = "Credit" | "Debit";
 
@@ -17,7 +20,7 @@ export interface Transaction {
   date: string;
   description: string;
   category: string;
-  attachments: string[];
+  anexo: string[];
 }
 
 export interface AccountInfo {
@@ -35,7 +38,7 @@ export interface AccountInfo {
 export interface UserInfo {
   username: string;
   email: string;
-  id: string;
+  accountId: string;
 }
 
 interface StatementState {
@@ -49,9 +52,10 @@ interface StatementState {
   fetchData: () => Promise<void>;
   addTransaction: (
     transaction: Pick<Transaction, "type" | "value"> & {
+      id: string;
       from?: string;
       to?: string;
-      anexo?: string;
+      anexo?: string[];
       category: string;
       description: string;
     }
@@ -78,8 +82,9 @@ export const useStatementStore = create<StatementState>((set, get) => ({
   fetchData: async () => {
     try {
       set({ loading: true, error: null });
+      const authToken = localStorage.getItem("authToken") ?? "";
 
-      await loginAutomatically();
+      await setAuthToken(authToken);
       const accountData = await getAccount();
 
       if (accountData?.result) {
@@ -90,7 +95,7 @@ export const useStatementStore = create<StatementState>((set, get) => ({
           userInfo: {
             username: accountData.result.user?.username || "",
             email: accountData.result.user?.email || "",
-            id: accountData.result.user?.id || "",
+            accountId: accountData.result.user?.id || "",
           },
           accountInfo: accountData.result.account[0],
           transactions,
@@ -115,11 +120,13 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       const valueWithSign = Math.abs(transaction.value);
 
       const transactionData: createTransactionData = {
+        id: transaction.id,
         accountId: accountInfo.id,
         type: transaction.type,
         value: valueWithSign,
         category: transaction.category,
         description: transaction.description,
+        anexo: transaction.anexo,
       };
 
       try {
@@ -141,23 +148,44 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     });
   },
 
-  updateTransaction: (id, updated) => {
-    set((state) => ({
-      transactions: state.transactions.map((t) =>
-        t.id === id ? { ...updated, id } : t
-      ),
-    }));
+  updateTransaction: async (id, updated) => {
+    if (id) {
+      const payload = {
+        value: updated.value,
+        type: updated.type,
+        from: (updated as any).from, // se tiver
+        to: (updated as any).to, // se tiver
+        anexo: updated.anexo,
+        urlAnexo: (updated as any).urlAnexo,
+      };
+
+      try {
+        const response = await updateTransaction(id, payload);
+        if (response) {
+          console.log("Transação editada com sucesso:", response);
+          await get().fetchData();
+        }
+      } catch (err) {
+        console.error("Erro ao editar transação:", err);
+      }
+    }
   },
 
-  deleteTransaction: (id) => {
-    set((state) => ({
-      transactions: state.transactions.filter((t) => t.id !== id),
-    }));
+  deleteTransaction: async (id: string) => {
+    try {
+      const response = await deleteTransaction(id);
+      if (response) {
+        console.log("Transação deletada com sucesso:", response);
+        await get().fetchData();
+      }
+    } catch (err) {
+      console.error("Erro ao deletar transação:", err);
+    }
   },
 
   getLatestTransactions: (count) => {
     return [...get().transactions]
-      .sort((a, b) => parseInt(b.id) - parseInt(a.id))
+      .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
       .slice(0, count);
   },
 }));

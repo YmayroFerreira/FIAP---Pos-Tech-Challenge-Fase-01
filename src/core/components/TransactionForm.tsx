@@ -49,7 +49,7 @@ export default function TransactionForm({
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
   const [description, setDescription] = useState("");
-  const [attachments, setAttachments] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
 
   const isEditMode = !!editingTransaction;
 
@@ -58,6 +58,11 @@ export default function TransactionForm({
       setTransactionType(editingTransaction.type);
       setDescription(editingTransaction.description);
       setCategory(editingTransaction.category);
+      setAttachments(
+        Array.isArray(editingTransaction.anexo)
+          ? editingTransaction.anexo
+          : [editingTransaction.anexo]
+      );
 
       setTimeout(() => {
         setValue(editingTransaction.value);
@@ -79,16 +84,14 @@ export default function TransactionForm({
       return;
     }
 
-    const attachmentUrls = attachments.map((file) => URL.createObjectURL(file));
-
     const transactionData = {
-      id: crypto.randomUUID(),
+      id: editingTransaction?.id ?? "",
       type: transactionType as transactionType,
       value: numericValue,
       description,
       category,
       date: editingTransaction?.date || new Date().toISOString().split("T")[0],
-      attachments: attachmentUrls,
+      anexo: attachments,
     };
 
     try {
@@ -268,7 +271,7 @@ export default function TransactionForm({
               label="Quer incluir um comprovante?"
               className="font-medium text-gray-700 text-sm"
             />
-            <FileUpload onFiles={setAttachments} />
+            <FileUpload onFilesBase64={setAttachments} />
           </div>
 
           <div className="w-full mt-[32px]">

@@ -14,13 +14,15 @@ import Button from "@/shared/components/button/Button";
 import Paragraph from "@/shared/components/paragraph/Paragraph";
 import { useStatementStore } from "@/store/StatementStore";
 import ModalConfirmation from "@/shared/components/ui/modal-confirmation/ModalConfirmation";
+import { message } from "@/shared/components/ui/message/message";
 
 export default function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
 }: StatementModel) {
-  const { transactions, loading, error } = useStatementStore();
+  const { transactions, loading, error, deleteTransaction } =
+    useStatementStore();
   const [page, setPage] = useState(1);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -70,10 +72,6 @@ export default function Statement({
     }).format(amount);
   };
 
-  const handleDelete = (id: string) => {
-    console.log(`Deletando transação com o ID: ${id}`);
-  };
-
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
   };
@@ -81,6 +79,18 @@ export default function Statement({
   const handleCancelEdit = () => {
     setEditingTransaction(null);
   };
+
+  function handleDelete(transaction: Transaction | null) {
+    if (!transaction) return;
+
+    try {
+      deleteTransaction(transaction.id);
+      message.success("Transação deletada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar transação:", error);
+      message.error("Erro ao deletar transação. Tente novamente.");
+    }
+  }
 
   const sortedTransactions = [...transactions].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -282,7 +292,7 @@ export default function Statement({
                       <ModalConfirmation
                         titulo="Tem certeza que deseja excluir este item?"
                         descricao="Esta ação é irreversível."
-                        onConfirmar={() => handleDelete(transaction.id)}
+                        onConfirmar={() => handleDelete(transaction)}
                       >
                         {(abrirModal) => (
                           <div
