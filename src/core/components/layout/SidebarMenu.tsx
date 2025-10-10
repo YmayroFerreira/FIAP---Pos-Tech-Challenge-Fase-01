@@ -8,7 +8,6 @@ import { useState } from "react";
 const menuItems = [
   { label: "Início", href: "/" },
   { label: "Transações", href: "/transactions" },
-  { label: "HomePage", href: "/homepage" },
 ];
 
 export default function SidebarMenu() {

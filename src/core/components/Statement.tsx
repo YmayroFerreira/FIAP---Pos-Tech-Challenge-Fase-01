@@ -100,7 +100,7 @@ export default function Statement({
     if (isPaginated) {
       if (
         searchQuery &&
-        !transaction.id.toLowerCase().includes(searchQuery.toLowerCase())
+        !transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false;
       }
@@ -175,7 +175,7 @@ export default function Statement({
           <div className="flex items-center mb-4 gap-4">
             <input
               type="text"
-              placeholder="Pesquisar por descrição..."
+              placeholder="Pesquisar por Categoria..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow h-10 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
