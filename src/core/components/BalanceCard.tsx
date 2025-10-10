@@ -6,7 +6,8 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { useStatementStore } from "@/store/StatementStore";
 
 export default function BalanceCard() {
-  const { userInfo, currentBalance, loading, error } = useStatementStore();
+  const { userInfo, currentBalance, loading, error, accountInfo } =
+    useStatementStore();
   const [showBalance, setShowBalance] = useState(true);
 
   const toggleVisibility = () => {
@@ -66,7 +67,7 @@ export default function BalanceCard() {
     <section className="bg-primary text-white rounded-default flex justify-center items-center flex-col pt-[40px]  bg-custom-pixel mb-[24px]">
       <div className="sm:w-full sm:w-[500px] sm:pl-[32px] sm:pr-[32px]">
         <h2 className="font-semibold text-xl">
-          Olá, {userInfo.username || "John Doe"} :)
+          Olá, {accountInfo?.name ?? "Usuario"} :)
         </h2>{" "}
         {/* !remover esse texto @walteann */}
         <div className="flex flex-col sm:flex-row sm:justify-between">
