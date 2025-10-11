@@ -353,7 +353,7 @@ export default function Statement({
             <h3 className="text-lg font-bold mb-4">Pesquisa Avançada</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Tipo de Transação
                 </label>
                 <select
@@ -371,8 +371,9 @@ export default function Statement({
                   <option value="Debit">Saída</option>
                 </select>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Data de Início
                 </label>
                 <input
@@ -384,11 +385,13 @@ export default function Statement({
                       startDate: e.target.value,
                     })
                   }
+                  max={advancedFilters.endDate || undefined}
                   className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Data de Fim
                 </label>
                 <input
@@ -400,14 +403,22 @@ export default function Statement({
                       endDate: e.target.value,
                     })
                   }
+                  min={advancedFilters.startDate || undefined}
                   className="mt-1 block w-full h-10 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bb-green focus:border-bb-green"
                 />
               </div>
             </div>
+
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setShowAdvancedSearch(false)}
-                className="px-4 py-2 bg-bb-green text-white rounded-md hover:opacity-90"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => setShowAdvancedSearch(false)}
+                className="px-4 py-2 bg-bb-green text-white rounded-md hover:opacity-90 transition-opacity"
               >
                 Aplicar Filtros
               </button>
