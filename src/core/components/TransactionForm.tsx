@@ -64,8 +64,9 @@ export default function TransactionForm({
           : [editingTransaction.anexo]
       );
 
+      // CORREÇÃO: Sempre use valor absoluto (positivo) no formulário
       setTimeout(() => {
-        setValue(editingTransaction.value);
+        setValue(Math.abs(editingTransaction.value));
       }, 100);
     }
   }, [editingTransaction, setValue]);
@@ -84,10 +85,16 @@ export default function TransactionForm({
       return;
     }
 
+    // CORREÇÃO: Converte o valor baseado no tipo de transação
+    const finalValue =
+      transactionType === "Debit"
+        ? -Math.abs(numericValue)
+        : Math.abs(numericValue);
+
     const transactionData = {
       id: editingTransaction?.id ?? "",
       type: transactionType as transactionType,
-      value: numericValue,
+      value: finalValue, // Usa o valor convertido
       description,
       category,
       date: editingTransaction?.date || new Date().toISOString().split("T")[0],
