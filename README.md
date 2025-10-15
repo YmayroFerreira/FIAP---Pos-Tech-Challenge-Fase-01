@@ -24,6 +24,14 @@ Use o comando abaixo apra instalar as dependências.
 ```bash
 npm install
 ```
+lemre-se de adicionar um arquivo .env com as seguintes variaveis de ambiente:
+```bash
+NEXT_PUBLIC_API_URL=https://tech-challenge-2-awjb.onrender.com
+NEXT_PUBLIC_HOMEPAGE_URL=http://localhost:3003
+```
+necessário também baixar o seguinte repositório para rodar no localhost:3003
+
+[bytebank](https://github.com/Walteann/bytebank-homepage)
 
 ### Desenvolvimento
 
