@@ -44,7 +44,7 @@ function AuthGuardContent({ children }: AuthGuardProps) {
       console.log("🔍 Verificando auth... Token:", storedToken ? "✅" : "❌");
 
       if (!storedToken) {
-        console.log("❌ Redirecionando para /homepage");
+        console.log(`❌ Redirecionando para ${process.env.NEXT_PUBLIC_HOMEPAGE_URL}/homepage`);
         window.location.href = "/homepage";
         return;
       }
