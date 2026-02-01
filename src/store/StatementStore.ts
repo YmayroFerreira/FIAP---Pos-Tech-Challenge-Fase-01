@@ -2,14 +2,6 @@
 "use client";
 
 import { create } from "zustand";
-import {
-  createTransaction,
-  createTransactionData,
-  deleteTransaction,
-  getAccount,
-  updateTransaction,
-} from "../services/account";
-import { setAuthToken } from "@/services/api-config";
 
 export type transactionType = "Credit" | "Debit";
 
@@ -41,6 +33,18 @@ export interface UserInfo {
   accountId: string;
 }
 
+export interface CreateTransactionData {
+  accountId: string;
+  id: string;
+  value: number;
+  type: "Credit" | "Debit";
+  from?: string;
+  to?: string;
+  anexo?: string[];
+  category: string;
+  description: string;
+}
+
 interface StatementState {
   transactions: Transaction[];
   userInfo: UserInfo | null;
@@ -67,6 +71,15 @@ interface StatementState {
   calculateBalance: (txns: Transaction[]) => number;
 }
 
+/**
+ * StatementStore - Gerenciamento de estado seguro
+ * 
+ * SEGURANÇA:
+ * - NÃO usa localStorage para tokens
+ * - Todas as chamadas à API passam pelo proxy seguro
+ * - O proxy adiciona o token do cookie HttpOnly no servidor
+ * - Token nunca é exposto ao JavaScript do cliente
+ */
 export const useStatementStore = create<StatementState>((set, get) => ({
   transactions: [],
   userInfo: null,
@@ -82,10 +95,24 @@ export const useStatementStore = create<StatementState>((set, get) => ({
   fetchData: async () => {
     try {
       set({ loading: true, error: null });
-      const authToken = localStorage.getItem("authToken") ?? "";
 
-      await setAuthToken(authToken);
-      const accountData = await getAccount();
+      // Usa proxy seguro - token é adicionado no servidor via cookie HttpOnly
+      const response = await fetch("/api/proxy/account", {
+        method: "GET",
+        credentials: "include", // Importante: envia cookies
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Não autenticado - redireciona para login
+          const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
+          window.location.href = `${homepageUrl}/homepage`;
+          return;
+        }
+        throw new Error("Erro ao carregar dados");
+      }
+
+      const accountData = await response.json();
 
       if (accountData?.result) {
         const transactions = accountData.result.transactions;
@@ -119,7 +146,7 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     if (accountInfo) {
       const valueWithSign = Math.abs(transaction.value);
 
-      const transactionData: createTransactionData = {
+      const transactionData: CreateTransactionData = {
         id: transaction.id,
         accountId: accountInfo.id,
         type: transaction.type,
@@ -130,13 +157,21 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       };
 
       try {
-        const response = await createTransaction(transactionData);
-        if (response) {
-          console.log("Transação criada com sucesso:", response);
+        // Usa proxy seguro para criar transação
+        const response = await fetch("/api/proxy/account/transaction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(transactionData),
+        });
+
+        if (response.ok) {
           await get().fetchData();
         }
       } catch (err) {
-        console.error("Erro ao criar transação:", err);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao criar transação:", err);
+        }
       }
     }
   },
@@ -153,33 +188,47 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       const payload = {
         value: updated.value,
         type: updated.type,
-        from: (updated as any).from, // se tiver
-        to: (updated as any).to, // se tiver
+        from: (updated as any).from,
+        to: (updated as any).to,
         anexo: updated.anexo,
         urlAnexo: (updated as any).urlAnexo,
       };
 
       try {
-        const response = await updateTransaction(id, payload);
-        if (response) {
-          console.log("Transação editada com sucesso:", response);
+        // Usa proxy seguro para atualizar transação
+        const response = await fetch(`/api/proxy/account/transaction/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
           await get().fetchData();
         }
       } catch (err) {
-        console.error("Erro ao editar transação:", err);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao editar transação:", err);
+        }
       }
     }
   },
 
   deleteTransaction: async (id: string) => {
     try {
-      const response = await deleteTransaction(id);
-      if (response) {
-        console.log("Transação deletada com sucesso:", response);
+      // Usa proxy seguro para deletar transação
+      const response = await fetch(`/api/proxy/account/transaction/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
         await get().fetchData();
       }
     } catch (err) {
-      console.error("Erro ao deletar transação:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Erro ao deletar transação:", err);
+      }
     }
   },
 

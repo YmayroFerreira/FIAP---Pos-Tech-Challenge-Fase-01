@@ -1,61 +1,57 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
-// Componente interno que usa useSearchParams
+/**
+ * AuthGuard - Componente de proteção de rotas
+ * 
+ * SEGURANÇA:
+ * - NÃO usa localStorage (vulnerável a XSS)
+ * - NÃO recebe token via URL (vulnerável a leaks)
+ * - Verifica autenticação via API que lê cookie HttpOnly
+ * - Cookie HttpOnly não é acessível via JavaScript
+ */
 function AuthGuardContent({ children }: AuthGuardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const checkAuth = () => {
-      // 1. Verifica se veio token pela URL
-      const encodedToken = searchParams.get("auth");
+    const checkAuth = async () => {
+      try {
+        // Verifica autenticação via API (que lê o cookie HttpOnly no servidor)
+        const response = await fetch("/api/auth/check", {
+          method: "GET",
+          credentials: "include", // Importante: envia cookies
+        });
 
-      if (encodedToken) {
-        try {
-          const token = atob(encodedToken);
-
-          console.log("🔑 Token recebido pela URL");
-          localStorage.setItem("authToken", token);
-
-          // Remove token da URL
-          const url = new URL(window.location.href);
-          url.searchParams.delete("auth");
-          window.history.replaceState({}, "", url.pathname);
-
-          setIsAuthenticated(true);
-          setIsChecking(false);
-          return;
-        } catch (error) {
-          console.error("❌ Erro ao decodificar token:", error);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+            setIsChecking(false);
+            return;
+          }
         }
+
+        // Não autenticado - redireciona para login
+        const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
+        window.location.href = `${homepageUrl}/homepage`;
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao verificar autenticação:", error);
+        }
+        // Em caso de erro, redireciona para login por segurança
+        const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
+        window.location.href = `${homepageUrl}/homepage`;
       }
-
-      // 2. Verifica localStorage
-      const storedToken = localStorage.getItem("authToken");
-
-      console.log("🔍 Verificando auth... Token:", storedToken ? "✅" : "❌");
-
-      if (!storedToken) {
-        console.log(`❌ Redirecionando para ${process.env.NEXT_PUBLIC_HOMEPAGE_URL}/homepage`);
-        window.location.href = "/homepage";
-        return;
-      }
-
-      console.log("✅ Autenticado!");
-      setIsAuthenticated(true);
-      setIsChecking(false);
     };
 
     checkAuth();
-  }, [searchParams]);
+  }, []);
 
   if (isChecking) {
     return (
