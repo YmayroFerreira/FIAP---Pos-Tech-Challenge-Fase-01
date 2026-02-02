@@ -2,9 +2,34 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Middleware de autenticação seguro
- * Verifica o cookie HttpOnly em vez de localStorage
- * Executa no servidor, não pode ser bypassado pelo cliente
+ * Headers de segurança
+ */
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-XSS-Protection", value: "1; mode=block" },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' data:",
+      "connect-src 'self' https:",
+      "frame-ancestors 'none'",
+    ].join("; "),
+  },
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+];
+
+/**
+ * Middleware de autenticação e segurança
+ * - Verifica o cookie HttpOnly em vez de localStorage
+ * - Adiciona headers de segurança em todas as respostas
+ * - Executa no servidor, não pode ser bypassado pelo cliente
  */
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("authToken")?.value;
@@ -27,19 +52,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(`${homepageUrl}/homepage`);
   }
 
-  // Se tem token, adiciona ao header para uso nas APIs (server-side)
+  // Cria a resposta
+  const requestHeaders = new Headers(request.headers);
   if (token) {
-    const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-auth-token", token);
-
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  // Adiciona headers de segurança
+  securityHeaders.forEach(({ key, value }) => {
+    response.headers.set(key, value);
+  });
+
+  return response;
 }
 
 export const config = {
