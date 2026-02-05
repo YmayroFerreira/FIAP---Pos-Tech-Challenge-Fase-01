@@ -24,11 +24,11 @@ interface FinancialChartProps {
   title?: string;
 }
 
-const FinancialChart: React.FC<FinancialChartProps> = ({
+const FinancialChart = React.memo<FinancialChartProps>(function FinancialChart({
   height = 300,
   showGrid = true,
   title = "Extrato da Conta",
-}) => {
+}) {
   const { transactions, loading, error } = useStatementStore();
 
   const formatCurrency = (value: number): string => {
@@ -42,7 +42,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
     if (!transactions || transactions.length === 0) return [];
 
     const sorted = [...transactions].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
     let runningBalance = 0;
@@ -65,7 +65,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
   const { totalEntradas, totalSaidas, saldoAtual } = useMemo(() => {
     const totalEntradas = chartData.reduce(
       (sum, item) => sum + item.entradas,
-      0
+      0,
     );
     const totalSaidas = chartData.reduce((sum, item) => sum + item.saidas, 0);
     const saldoAtual =
@@ -194,6 +194,6 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default FinancialChart;

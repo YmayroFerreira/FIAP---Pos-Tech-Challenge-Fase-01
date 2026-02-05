@@ -5,40 +5,50 @@ import Header from "@/core/components/Header";
 import { Inter } from "next/font/google";
 import SidebarMenu from "@/core/components/layout/SidebarMenu";
 import { Toaster } from "sonner";
+import { Providers } from "./providers";
 
 const inter = Inter({
-	subsets: ["latin"],
-	variable: "--font-inter",
-	weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-	title: "Bytebank",
-	description: "Projeto FIAP",
+  title: "Bytebank",
+  description: "Projeto FIAP",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="pt-br">
-			<body className={`${inter.variable} antialiased`}>
-				<Header />
-				<main className="flex justify-center @container min-h-screen">
-					<div className="flex flex-col  @min-[1024px]:flex-row w-full max-w-[1200px] gap-[24px] pt-[24px] items-start p-[24px]">
-						<aside
-							className="w-full  @min-[1024px]:w-[180px] @min-[1024px]:bg-white @min-[426px]:p-4 @min-[426px]:mb-[32px] rounded-default 
-					lg:h-full "
-						>
-							<SidebarMenu />
-						</aside>
-						{children}
-					</div>
-				</main>
-				<Toaster position="top-center" richColors />
-			</body>
-		</html>
-	);
+  return (
+    <html lang="pt-br">
+      <head>
+        <link
+          rel="preconnect"
+          href="https://tech-challenge-2-awjb.onrender.com"
+        />
+      </head>
+      <body className={`${inter.variable} antialiased`}>
+        <Providers>
+          <Header />
+          <main className="flex justify-center @container min-h-screen">
+            <div className="flex flex-col  @min-[1024px]:flex-row w-full max-w-[1200px] gap-[24px] pt-[24px] items-start p-[24px]">
+              <aside
+                className="w-full  @min-[1024px]:w-[180px] @min-[1024px]:bg-white @min-[426px]:p-4 @min-[426px]:mb-[32px] rounded-default 
+						lg:h-full "
+              >
+                <SidebarMenu />
+              </aside>
+              {children}
+            </div>
+          </main>
+          <Toaster position="top-center" richColors />
+        </Providers>
+      </body>
+    </html>
+  );
 }

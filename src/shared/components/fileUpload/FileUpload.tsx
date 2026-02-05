@@ -27,8 +27,8 @@ export default function FileUpload({
                 reader.onload = () =>
                   resolve({ file, base64: reader.result as string });
                 reader.onerror = (error) => reject(error);
-              })
-          )
+              }),
+          ),
         );
         const onlyBase64 = base64Files.map((file) => file.base64);
 
