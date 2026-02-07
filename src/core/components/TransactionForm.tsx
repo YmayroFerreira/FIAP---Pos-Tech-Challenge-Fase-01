@@ -1,7 +1,13 @@
 "use client";
 
 import { useCurrencyMask } from "@/hooks/useCurrencyMask";
-import { useRef, useState, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+} from "react";
 import { TransactionModel } from "../models";
 import Input from "@/shared/components/input/Input";
 import Button from "@/shared/components/button/Button";
@@ -36,11 +42,12 @@ const categories = [
   "Outros",
 ];
 
-export default function TransactionForm({
+const TransactionForm = React.memo(function TransactionForm({
   editingTransaction,
   onCancel,
   isModal = false,
 }: TransactionModel) {
+  const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const { numericValue, setValue } = useCurrencyMask(inputRef);
   const { addTransaction, updateTransaction } = useStatementStore();
@@ -61,7 +68,7 @@ export default function TransactionForm({
       setAttachments(
         Array.isArray(editingTransaction.anexo)
           ? editingTransaction.anexo
-          : [editingTransaction.anexo]
+          : [editingTransaction.anexo],
       );
 
       // CORREÇÃO: Sempre use valor absoluto (positivo) no formulário
@@ -71,7 +78,7 @@ export default function TransactionForm({
     }
   }, [editingTransaction, setValue]);
 
-  function handleSubmit() {
+  const handleSubmit = useCallback(() => {
     const valueInput = inputRef.current;
     if (!valueInput) return;
 
@@ -85,83 +92,103 @@ export default function TransactionForm({
       return;
     }
 
-    // CORREÇÃO: Converte o valor baseado no tipo de transação
-    const finalValue =
-      transactionType === "Debit"
-        ? -Math.abs(numericValue)
-        : Math.abs(numericValue);
+    startTransition(() => {
+      // CORREÇÃO: Converte o valor baseado no tipo de transação
+      const finalValue =
+        transactionType === "Debit"
+          ? -Math.abs(numericValue)
+          : Math.abs(numericValue);
 
-    const transactionData = {
-      id: editingTransaction?.id ?? "",
-      type: transactionType as transactionType,
-      value: finalValue, // Usa o valor convertido
-      description,
-      category,
-      date: editingTransaction?.date || new Date().toISOString().split("T")[0],
-      anexo: attachments,
-    };
+      const transactionData = {
+        id: editingTransaction?.id ?? "",
+        type: transactionType as transactionType,
+        value: finalValue, // Usa o valor convertido
+        description,
+        category,
+        date:
+          editingTransaction?.date || new Date().toISOString().split("T")[0],
+        anexo: attachments,
+      };
 
-    try {
-      if (isEditMode && editingTransaction) {
-        updateTransaction(editingTransaction.id, transactionData);
-        message.success("Transação atualizada com sucesso!");
-        onCancel?.();
-      } else {
-        addTransaction(transactionData);
-        message.success(
-          "Transação adicionada com sucesso!",
-          "Você pode ver os detalhes na sua lista de extrato."
-        );
+      try {
+        if (isEditMode && editingTransaction) {
+          updateTransaction(editingTransaction.id, transactionData);
+          message.success("Transação atualizada com sucesso!");
+          onCancel?.();
+        } else {
+          addTransaction(transactionData);
+          message.success(
+            "Transação adicionada com sucesso!",
+            "Você pode ver os detalhes na sua lista de extrato.",
+          );
+        }
+
+        if (!isEditMode) {
+          resetForm();
+        }
+      } catch (error) {
+        console.error("Error processing transaction:", error);
+        message.error("Erro ao processar transação. Tente novamente.");
       }
+    });
+  }, [
+    transactionType,
+    numericValue,
+    valueError,
+    description,
+    editingTransaction,
+    attachments,
+    category,
+    isEditMode,
+    updateTransaction,
+    addTransaction,
+    onCancel,
+  ]);
 
-      if (!isEditMode) {
-        resetForm();
-      }
-    } catch (error) {
-      console.error("Error processing transaction:", error);
-      message.error("Erro ao processar transação. Tente novamente.");
-    }
-  }
-
-  function resetForm() {
+  const resetForm = useCallback(() => {
     setTransactionType("");
     setDescription("");
     setCategory("");
     setValue(0);
-  }
+  }, [setValue]);
 
   const containerClasses =
     "bg-neutral-grey2 rounded-default flex flex-col bg-custom-pixel2 mb-[24px]";
-  function handleCategoryChange(value: string) {
+  const handleCategoryChange = useCallback((value: string) => {
     setCategory(value);
 
     if (value.length > 0) {
       const matches = categories.filter((cat) =>
-        cat.toLowerCase().includes(value.toLowerCase())
+        cat.toLowerCase().includes(value.toLowerCase()),
       );
       setFilteredCategories(matches);
     } else {
       setFilteredCategories([]);
     }
-  }
+  }, []);
 
-  function handleSelectCategory(cat: string) {
+  const handleSelectCategory = useCallback((cat: string) => {
     setCategory(cat);
     setFilteredCategories([]);
-  }
+  }, []);
 
-  const handleValidate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/[^\d,.-]/g, "").replace(",", ".");
-    const numeric = parseFloat(rawValue);
+  const handleValidate = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const rawValue = e.target.value
+        .replace(/[^\d,.-]/g, "")
+        .replace(",", ".");
+      const numeric = parseFloat(rawValue);
 
-    if (isNaN(numeric) || numeric <= 0) {
-      setValueError("Digite um valor válido maior que zero.");
-      setValue(0);
-      return;
-    }
+      if (isNaN(numeric) || numeric <= 0) {
+        setValueError("Digite um valor válido maior que zero.");
+        setValue(0);
+        return;
+      }
 
-    setValueError("");
-  };
+      setValueError("");
+    },
+    [],
+  );
 
   return (
     <section className={containerClasses}>
@@ -287,10 +314,15 @@ export default function TransactionForm({
                 <Button
                   type="button"
                   label={
-                    isEditMode ? "Atualizar transação" : "Concluir transação"
+                    isPending
+                      ? "Processando..."
+                      : isEditMode
+                        ? "Atualizar transação"
+                        : "Concluir transação"
                   }
                   onClick={handleSubmit}
                   variant="primary"
+                  disabled={isPending}
                 />
               </div>
               {isEditMode && onCancel && (
@@ -311,4 +343,6 @@ export default function TransactionForm({
       </div>
     </section>
   );
-}
+});
+
+export default TransactionForm;

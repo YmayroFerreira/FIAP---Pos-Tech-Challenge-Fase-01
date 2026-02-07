@@ -187,6 +187,7 @@ export default React.memo(function Statement({
           <Link
             href="/transactions"
             className="text-sm text-bb-green underline"
+            prefetch={true}
           >
             Ver todos
           </Link>

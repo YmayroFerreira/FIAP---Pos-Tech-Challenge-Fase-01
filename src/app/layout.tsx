@@ -31,6 +31,9 @@ export default function RootLayout({
           rel="preconnect"
           href="https://tech-challenge-2-awjb.onrender.com"
         />
+        <link rel="prefetch" href="/" as="document" />
+        <link rel="prefetch" href="/transactions" as="document" />
+        <link rel="prefetch" href="/homepage" as="document" />
       </head>
       <body className={`${inter.variable} antialiased`}>
         <Providers>

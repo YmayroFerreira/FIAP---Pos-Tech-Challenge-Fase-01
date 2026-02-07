@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,8 +11,10 @@ const navItems = [
   { name: "homepage", href: "/homepage" },
 ];
 
-export default function Sidebar() {
+const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
+
+  const memoizedNavItems = useMemo(() => navItems, []);
 
   return (
     <nav
@@ -29,7 +31,7 @@ export default function Sidebar() {
                     /* Desktop: vertical layout */
                     md:flex-col md:space-y-2"
       >
-        {navItems.map((item) => {
+        {memoizedNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <li
@@ -64,4 +66,6 @@ export default function Sidebar() {
       </ul>
     </nav>
   );
-}
+});
+
+export default Sidebar;
