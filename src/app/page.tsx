@@ -1,12 +1,32 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import BalanceCard from "@/core/components/BalanceCard";
-import HomePageChart from "@/core/components/HomePageChart";
-import Statement from "@/core/components/Statement";
-import TransactionForm from "@/core/components/TransactionForm";
 import { useStatementStore } from "@/store/StatementStore";
 import { useEffect } from "react";
 import AuthGuard from "@/core/components/AuthGuard";
+
+const HomePageChart = dynamic(() => import("@/core/components/HomePageChart"), {
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 h-64 rounded-default"></div>
+  ),
+  ssr: false,
+});
+
+const Statement = dynamic(() => import("@/core/components/Statement"), {
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 h-96 rounded-default"></div>
+  ),
+});
+
+const TransactionForm = dynamic(
+  () => import("@/core/components/TransactionForm"),
+  {
+    loading: () => (
+      <div className="animate-pulse bg-gray-200 h-48 rounded-default"></div>
+    ),
+  },
+);
 
 function HomePage() {
   const { fetchData } = useStatementStore();

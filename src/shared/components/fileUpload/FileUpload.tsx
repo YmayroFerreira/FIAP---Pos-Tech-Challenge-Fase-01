@@ -27,8 +27,8 @@ export default function FileUpload({
                 reader.onload = () =>
                   resolve({ file, base64: reader.result as string });
                 reader.onerror = (error) => reject(error);
-              })
-          )
+              }),
+          ),
         );
         const onlyBase64 = base64Files.map((file) => file.base64);
 
@@ -55,6 +55,7 @@ export default function FileUpload({
         <div className="flex gap-2 mt-2 flex-wrap">
           {previews.map((src, i) => (
             <Image
+              priority={false}
               unoptimized
               width={100}
               height={100}

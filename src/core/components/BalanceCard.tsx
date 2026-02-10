@@ -4,15 +4,22 @@ import { useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
 import { useStatementStore } from "@/store/StatementStore";
+import { useAccountDataWithCache } from "@/hooks/useAccountDataWithCache";
 
 export default function BalanceCard() {
-  const { userInfo, currentBalance, loading, error, accountInfo } =
-    useStatementStore();
+  const { currentBalance, accountInfo } = useStatementStore();
+  const {
+    data,
+    isLoading: isQueryLoading,
+    isError: isQueryError,
+  } = useAccountDataWithCache();
   const [showBalance, setShowBalance] = useState(true);
 
   const toggleVisibility = () => {
     setShowBalance(!showBalance);
   };
+
+  const accountFromData = data?.result?.cards?.[0];
 
   const formatCurrency = (amount: number) => {
     const isNegative = amount < 0;
@@ -33,7 +40,7 @@ export default function BalanceCard() {
     year: "numeric",
   });
 
-  if (loading) {
+  if (isQueryLoading) {
     return (
       <div className="bg-primary text-white rounded-default h-[387px] flex justify-center items-center flex-col pt-[40px]  bg-custom-pixel mb-[24px] animate-pulse">
         <div className="flex flex-col md:flex-row md:justify-between gap-6 p-4">
@@ -52,7 +59,7 @@ export default function BalanceCard() {
     );
   }
 
-  if (error || !userInfo) {
+  if (isQueryError || !data) {
     return (
       <div className="bg-red-200 text-red-800 p-6 w-full text-lg rounded-lg">
         <p>
@@ -62,14 +69,12 @@ export default function BalanceCard() {
       </div>
     );
   }
-
   return (
     <section className="bg-primary text-white rounded-default flex justify-center items-center flex-col pt-[40px]  bg-custom-pixel mb-[24px]">
       <div className="sm:w-full sm:w-[500px] sm:pl-[32px] sm:pr-[32px]">
         <h2 className="font-semibold text-xl">
-          Olá, {accountInfo?.name ?? "Usuario"} :)
-        </h2>{" "}
-        {/* !remover esse texto @walteann */}
+          Olá, {accountFromData?.name ?? accountInfo?.name ?? "Usuario"} :)
+        </h2>
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <span className="font-regular text-sm capitalize">
             {getFormattedDate}
