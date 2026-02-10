@@ -1,10 +1,14 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccount } from "@/services/account";
-import { setAuthToken } from "@/services/api-config";
 
 /**
  * Hook: useAccountDataWithCache
+ *
+ * SEGURANÇA:
+ * - NÃO usa localStorage para token
+ * - Usa proxy seguro que obtém token do cookie HttpOnly
+ * - Token nunca é exposto ao JavaScript
  *
  * Integra React Query com StatementStore para caching automático.
  * Observa eventos de invalidação do store e revalida cache.
@@ -19,8 +23,7 @@ export function useAccountDataWithCache() {
   const query = useQuery({
     queryKey: ["account"],
     queryFn: async () => {
-      const authToken = localStorage.getItem("authToken") ?? "";
-      await setAuthToken(authToken);
+      // Token é adicionado automaticamente via cookie HttpOnly no proxy
       return await getAccount();
     },
     staleTime: 5 * 60 * 1000,
