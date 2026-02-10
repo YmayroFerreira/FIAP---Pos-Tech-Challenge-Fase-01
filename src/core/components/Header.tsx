@@ -1,17 +1,18 @@
 "use client";
 
+import React, { useCallback } from "react";
 import ButtonIcon from "@/shared/components/ui/button-icon/ButtonIcon";
 import { useStatementStore } from "@/store/StatementStore";
 import { FaSignOutAlt } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
 
-export default function Header() {
+const Header = React.memo(function Header() {
   const { accountInfo } = useStatementStore();
 
-  const handleDisconect = () => {
+  const handleDisconect = useCallback(() => {
     localStorage.removeItem("authToken");
     window.location.href = "/homepage";
-  };
+  }, []);
 
   return (
     <header className="w-full h-[96px] bg-primary flex justify-center">
@@ -33,4 +34,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});
+
+export default Header;

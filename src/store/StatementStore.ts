@@ -58,12 +58,10 @@ interface StatementState {
       anexo?: string[];
       category: string;
       description: string;
-    }
+    },
   ) => Promise<void>;
-  setTransactions: (txns: Transaction[]) => void;
   updateTransaction: (id: string, updated: Omit<Transaction, "id">) => void;
   deleteTransaction: (id: string) => void;
-  getLatestTransactions: (count: number) => Transaction[];
   calculateBalance: (txns: Transaction[]) => number;
 }
 
@@ -88,6 +86,7 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       const accountData = await getAccount();
 
       if (accountData?.result) {
+        console.log(accountData);
         const transactions = accountData.result.transactions;
         const balance = get().calculateBalance(transactions);
 
@@ -141,20 +140,13 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     }
   },
 
-  setTransactions: (txns) => {
-    set({
-      transactions: txns,
-      currentBalance: get().calculateBalance(txns),
-    });
-  },
-
   updateTransaction: async (id, updated) => {
     if (id) {
       const payload = {
         value: updated.value,
         type: updated.type,
-        from: (updated as any).from, // se tiver
-        to: (updated as any).to, // se tiver
+        from: (updated as any).from,
+        to: (updated as any).to,
         anexo: updated.anexo,
         urlAnexo: (updated as any).urlAnexo,
       };
@@ -181,11 +173,5 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     } catch (err) {
       console.error("Erro ao deletar transação:", err);
     }
-  },
-
-  getLatestTransactions: (count) => {
-    return [...get().transactions]
-      .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
-      .slice(0, count);
   },
 }));
