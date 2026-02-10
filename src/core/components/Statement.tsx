@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   PencilIcon,
   TrashIcon,
@@ -15,8 +15,9 @@ import Paragraph from "@/shared/components/paragraph/Paragraph";
 import { useStatementStore } from "@/store/StatementStore";
 import ModalConfirmation from "@/shared/components/ui/modal-confirmation/ModalConfirmation";
 import { message } from "@/shared/components/ui/message/message";
+import { useDebounce } from "@/hooks/useDebounce";
 
-export default function Statement({
+export default React.memo(function Statement({
   isPaginated = false,
   itemsPerPage = 10,
   showLatest,
@@ -34,18 +35,29 @@ export default function Statement({
     endDate: "",
   });
 
-  const handleRemoveFilter = (filterKey: keyof typeof advancedFilters) => {
-    setAdvancedFilters((prev) => ({ ...prev, [filterKey]: "" }));
-  };
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 300);
 
-  const handleClearAllFilters = () => {
+  useEffect(() => {
+    setSearchQuery(debouncedSearch);
+  }, [debouncedSearch]);
+
+  const handleRemoveFilter = useCallback(
+    (filterKey: keyof typeof advancedFilters) => {
+      setAdvancedFilters((prev) => ({ ...prev, [filterKey]: "" }));
+    },
+    [],
+  );
+
+  const handleClearAllFilters = useCallback(() => {
+    setSearchInput("");
     setSearchQuery("");
     setAdvancedFilters({
       type: "",
       startDate: "",
       endDate: "",
     });
-  };
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -72,62 +84,73 @@ export default function Statement({
     }).format(amount);
   };
 
-  const handleEdit = (transaction: Transaction) => {
+  const handleEdit = useCallback((transaction: Transaction) => {
     setEditingTransaction(transaction);
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingTransaction(null);
-  };
+  }, []);
 
-  function handleDelete(transaction: Transaction | null) {
-    if (!transaction) return;
+  const handleDelete = useCallback(
+    (transaction: Transaction | null) => {
+      if (!transaction) return;
 
-    try {
-      deleteTransaction(transaction.id);
-      message.success("Transação deletada com sucesso!");
-    } catch (error) {
-      console.error("Erro ao deletar transação:", error);
-      message.error("Erro ao deletar transação. Tente novamente.");
-    }
-  }
-
-  const sortedTransactions = [...transactions].sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-
-  const filteredTransactions = sortedTransactions.filter((transaction) => {
-    if (isPaginated) {
-      if (
-        searchQuery &&
-        !transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false;
+      try {
+        deleteTransaction(transaction.id);
+        message.success("Transação deletada com sucesso!");
+      } catch (error) {
+        console.error("Erro ao deletar transação:", error);
+        message.error("Erro ao deletar transação. Tente novamente.");
       }
+    },
+    [deleteTransaction],
+  );
 
-      if (advancedFilters.type && transaction.type !== advancedFilters.type) {
-        return false;
-      }
-      const transactionDate = transaction.date.split("T")[0];
-      if (
-        advancedFilters.startDate &&
-        transactionDate < advancedFilters.startDate
-      ) {
-        return false;
-      }
-      if (
-        advancedFilters.endDate &&
-        transactionDate > advancedFilters.endDate
-      ) {
-        return false;
-      }
-    }
-    return true;
-  });
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  }, [transactions]);
 
-  const finalTransactions = showLatest
-    ? filteredTransactions.slice(0, showLatest)
-    : filteredTransactions;
+  const filteredTransactions = useMemo(() => {
+    return sortedTransactions.filter((transaction) => {
+      if (isPaginated) {
+        if (
+          searchQuery &&
+          !transaction.category
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        ) {
+          return false;
+        }
+
+        if (advancedFilters.type && transaction.type !== advancedFilters.type) {
+          return false;
+        }
+        const transactionDate = transaction.date.split("T")[0];
+        if (
+          advancedFilters.startDate &&
+          transactionDate < advancedFilters.startDate
+        ) {
+          return false;
+        }
+        if (
+          advancedFilters.endDate &&
+          transactionDate > advancedFilters.endDate
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [sortedTransactions, isPaginated, searchQuery, advancedFilters]);
+
+  const finalTransactions = useMemo(() => {
+    return showLatest
+      ? filteredTransactions.slice(0, showLatest)
+      : filteredTransactions;
+  }, [filteredTransactions, showLatest]);
 
   const totalPages = Math.ceil(finalTransactions.length / itemsPerPage);
 
@@ -164,6 +187,7 @@ export default function Statement({
           <Link
             href="/transactions"
             className="text-sm text-bb-green underline"
+            prefetch={true}
           >
             Ver todos
           </Link>
@@ -176,8 +200,8 @@ export default function Statement({
             <input
               type="text"
               placeholder="Pesquisar por Categoria..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="flex-grow h-10 px-4 text-gray-900 bg-gray-100 border border-bb-green rounded-md focus:outline-none focus:ring-2 focus:border-bb-green"
             />
             <button
@@ -194,7 +218,7 @@ export default function Statement({
               <span className="flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
                 Busca: &quot;{searchQuery}&quot;
                 <button
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => setSearchInput("")}
                   className="ml-2 text-gray-500 hover:text-gray-900 font-bold"
                 >
                   &times;
@@ -278,7 +302,7 @@ export default function Statement({
                     label={`
                    							${formatCurrency(transaction.value)}`}
                     className={`justify-start font-semibold ${formatTransactionStyle(
-                      transaction.value
+                      transaction.value,
                     )}`}
                   ></Paragraph>
                   {isPaginated && (
@@ -428,4 +452,4 @@ export default function Statement({
       )}
     </div>
   );
-}
+});

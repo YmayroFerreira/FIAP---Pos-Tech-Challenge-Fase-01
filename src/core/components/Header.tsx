@@ -1,12 +1,13 @@
 "use client";
 
+import React, { useCallback } from "react";
 import ButtonIcon from "@/shared/components/ui/button-icon/ButtonIcon";
 import { useStatementStore } from "@/store/StatementStore";
 import { FaSignOutAlt } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
 import { useState } from "react";
 
-export default function Header() {
+const Header = React.memo(function Header() {
   const { accountInfo } = useStatementStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -15,7 +16,7 @@ export default function Header() {
    * - Invalida o cookie HttpOnly no servidor
    * - NÃO usa localStorage
    */
-  const handleDisconnect = async () => {
+  const handleDisconnect = useCallback(async () => {
     if (isLoggingOut) return;
     
     setIsLoggingOut(true);
@@ -35,7 +36,7 @@ export default function Header() {
       const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
       window.location.href = `${homepageUrl}/homepage`;
     }
-  };
+  }, [isLoggingOut]);
 
   return (
     <header className="w-full h-[96px] bg-primary flex justify-center">
@@ -58,4 +59,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});
+
+export default Header;
