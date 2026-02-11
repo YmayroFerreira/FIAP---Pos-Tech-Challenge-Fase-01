@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-primary: #004d61;
+  --color-primary-light: #72cea6;
+  --color-accent: #ff5031;
+  --color-neutral-500: #dee9ea;
+  --color-neutral-100: #f8f8f8;
+  --color-neutral-light: #e4ede3;
+  --color-success: #47a138;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-neutral-grey: #8b8b8b;
+  --color-neutral-grey2: #cbcbcb;
+
+  --color-black444: #444444;
+  --color-disabled: #cccccc;
+}
+@theme {
+  --color-bb-green: #004d61;
+  --color-bb-light-green: #47a138;
+  --color-bb-emerald: #e4ede3;
+  --color-bb-red: #ff5031;
+  --color-bb-grey: #dee9ea;
+  --color-bb-light-grey: #8b8b8b;
+  --color-bb-grey-300: #cbcbcb;
+  --color-bb-white: #f8f8f8;
+  --color-bb-black: #000000;
+  --color-gradient-bb: #004d61;
+
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-accent: var(--color-accent);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-light: var(--color-neutral-light);
+  --color-success: var(--color-success);
+  --color-black: var(--color-black);
+  --color-white: var(--color-white);
+  --color-neutral-grey: var(--color-neutral-grey);
+  --color-neutral-grey2: var(--color-neutral-grey2);
+
+  --color-black444: var(--color-black444);
+  --color-disabled: var(--color-disabled);
+
+  --text-xl: 1.5625rem; /* 25px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-md: 1rem; /* 16px */
+  --text-sm: 0.8125rem; /* 13px */
+
+  --font-weight-semibold: 600;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  --radius-default: 8px;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-bb-green: #004d61;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-neutral-light);
+  color: var(--color-black);
+  font-family: var(--font-inter);
+}
+
+.bg-custom-pixel {
+  background-image:
+    url("./../../../public/images/pixels2.svg"),
+    url("./../../../public/images/Ilustração1.svg");
+  background-size:
+    144px 141.97px,
+    auto;
+  background-position:
+    bottom right,
+    bottom 0 left 32px;
+  background-repeat: no-repeat, no-repeat;
+}
+
+.bg-custom-pixel2 {
+  background-image:
+    url("./../../../public/images/pixels3.svg"),
+    url("./../../../public/images/Ilustração2.svg"),
+    url("./../../../public/images/pixels4.svg");
+  background-size:
+    146.06px 144px,
+    auto,
+    146.06px 144px;
+  background-position:
+    top left,
+    bottom 24px right 24px,
+    bottom right;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+.custom-404 {
+  background-image: url("./../../../public/images/Ilustração404.svg");
+  background-size: 312px 471.9px;
+  background-repeat: no-repeat;
+  background-position: bottom 0px center;
+}
+
+.bg-custom-gradient {
+  background: linear-gradient(180deg, #004d61 0%, #ffffff 100%);
+}
+
+@media (min-width: 640px) {
+  .bg-custom-pixel {
+    background-image:
+      url("./../../../public/images/pixels2.svg"),
+      url("./../../../public/images/pixels1.svg"),
+      url("./../../../public/images/Ilustração1.svg");
+    background-size:
+      144px 141.97px,
+      144px 141.97px,
+      auto;
+    background-position:
+      bottom left,
+      top right,
+      bottom 0 left 32px;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+  }
+
+  .bg-custom-pixel2 {
+    background-image:
+      url("./../../../public/images/pixels3.svg"),
+      url("./../../../public/images/pixels4.svg"),
+      url("./../../../public/images/Ilustração2.svg");
+    background-size:
+      146.06px 144px,
+      146.06px 144px,
+      auto;
+    background-position:
+      top right,
+      bottom left,
+      bottom 24px right 24px;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+  }
+}
+
+.scroll-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--color-disabled) transparent; /* cor da barra e do fundo */
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-disabled);
+  border-radius: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -1,10 +1,10 @@
-import Statement from "../../core/components/Statement";
-import AuthGuard from "@/core/components/AuthGuard";
+import AuthGuard from "@/shared/components/auth/AuthGuard";
+import TransactionsListPage from "@/modules/statement/presentation/pages/TransactionsListPage";
 
 export default function TransactionsPage() {
   return (
     <AuthGuard>
-      <Statement isPaginated={true} itemsPerPage={5} />
+      <TransactionsListPage />
     </AuthGuard>
   );
 }

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
-import "./globals.css";
-import Header from "@/core/components/Header";
+import "@/shared/styles/globals.css";
+import Header from "@/shared/components/layout/Header";
 import { Inter } from "next/font/google";
-import SidebarMenu from "@/core/components/layout/SidebarMenu";
+import SidebarMenu from "@/shared/components/layout/SidebarMenu";
 import { Toaster } from "sonner";
-import { Providers } from "./providers";
+import { Providers } from "../shared/providers/providers";
 
 const inter = Inter({
   subsets: ["latin"],
