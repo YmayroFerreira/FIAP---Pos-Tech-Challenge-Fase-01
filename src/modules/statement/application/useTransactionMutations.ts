@@ -1,4 +1,5 @@
 import { TransactionType } from "@/modules/statement/domain/entities/Transaction";
+import { useStatementStore } from "@/modules/statement/presentation/store/StatementUIStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 // DTOs
@@ -23,6 +24,14 @@ interface TransactionDTO {
  */
 export function useTransactionMutations() {
   const queryClient = useQueryClient();
+  const { fetchData } = useStatementStore();
+
+  const refreshData = () => {
+    // Invalida React Query cache
+    queryClient.invalidateQueries({ queryKey: ["account"] });
+    // Atualiza o Zustand store
+    fetchData();
+  };
 
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionDTO) => {
@@ -36,7 +45,7 @@ export function useTransactionMutations() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 
@@ -52,7 +61,7 @@ export function useTransactionMutations() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 
@@ -66,7 +75,7 @@ export function useTransactionMutations() {
       return true;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 
