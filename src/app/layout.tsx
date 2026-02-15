@@ -35,7 +35,7 @@ export default function RootLayout({
         <link rel="prefetch" href="/transactions" as="document" />
         <link rel="prefetch" href="/homepage" as="document" />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         <Providers>
           <Header />
           <main className="flex justify-center @container min-h-screen">

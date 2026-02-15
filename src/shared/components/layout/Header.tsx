@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import ButtonIcon from "@/shared/components/ui/button-icon/ButtonIcon";
 import { useStatementStore } from "@/modules/statement/presentation/store/StatementUIStore";
 import { FaSignOutAlt } from "react-icons/fa";
@@ -10,10 +10,18 @@ import { useAuth } from "@/shared/hooks/useAuth";
 const Header = React.memo(function Header() {
   const { accountInfo } = useStatementStore();
   const { logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleDisconect = useCallback(() => {
-    logout();
-  }, [logout]);
+  /**
+   * Logout seguro via API
+   * - Invalida o cookie HttpOnly no servidor
+   * - NÃO usa localStorage
+   */
+  const handleDisconnect = useCallback(async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    await logout();
+  }, [isLoggingOut, logout]);
 
   return (
     <header className="w-full h-[96px] bg-primary flex justify-center">
@@ -28,8 +36,9 @@ const Header = React.memo(function Header() {
           />
           <ButtonIcon
             className="border-white"
-            onClick={handleDisconect}
-            icon={<FaSignOutAlt className="text-[20px] text-white" />}
+            onClick={handleDisconnect}
+            disabled={isLoggingOut}
+            icon={<FaSignOutAlt className={`text-[20px] text-white ${isLoggingOut ? "opacity-50" : ""}`} />}
           />
         </div>
       </div>

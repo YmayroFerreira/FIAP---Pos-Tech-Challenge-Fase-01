@@ -9,8 +9,18 @@ import {
   Transaction,
   UserInfo,
 } from "@/modules/statement/domain/entities/Transaction";
-import { setAuthToken } from "@/shared/infrastructure/http/api-config";
 
+export interface CreateTransactionData {
+  accountId: string;
+  id: string;
+  value: number;
+  type: "Credit" | "Debit";
+  from?: string;
+  to?: string;
+  anexo?: string[];
+  category: string;
+  description: string;
+}
 
 interface StatementState {
   transactions: Transaction[];
@@ -36,6 +46,15 @@ interface StatementState {
   calculateBalance: (txns: Transaction[]) => number;
 }
 
+/**
+ * StatementStore - Gerenciamento de estado seguro
+ * 
+ * SEGURANÇA:
+ * - NÃO usa localStorage para tokens
+ * - Todas as chamadas à API passam pelo repositório com proxy seguro
+ * - O proxy adiciona o token do cookie HttpOnly no servidor
+ * - Token nunca é exposto ao JavaScript do cliente
+ */
 const repository = new TransactionRepositoryImpl();
 
 export const useStatementStore = create<StatementState>((set, get) => ({
@@ -53,13 +72,11 @@ export const useStatementStore = create<StatementState>((set, get) => ({
   fetchData: async () => {
     try {
       set({ loading: true, error: null });
-      const authToken = localStorage.getItem("authToken") ?? "";
 
-      await setAuthToken(authToken);
+      // Repository usa proxy seguro - token é adicionado no servidor via cookie HttpOnly
       const accountData = await repository.getAccountData();
 
       if (accountData?.result) {
-        console.log(accountData);
         const transactions = accountData.result.transactions;
         const balance = get().calculateBalance(transactions);
 
@@ -76,10 +93,9 @@ export const useStatementStore = create<StatementState>((set, get) => ({
           error: null,
         });
       } else {
-        set({
-          error: "Não foi possível carregar os dados da conta.",
-          loading: false,
-        });
+        // Não autenticado - redireciona para login
+        const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
+        window.location.href = `${homepageUrl}/homepage`;
       }
     } catch (err) {
       set({ error: "Erro ao se conectar com a API. " + err, loading: false });
@@ -91,7 +107,7 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     if (accountInfo) {
       const valueWithSign = Math.abs(transaction.value);
 
-      const transactionData = {
+      const transactionData: CreateTransactionData = {
         id: transaction.id,
         accountId: accountInfo.id,
         type: transaction.type,
@@ -104,11 +120,12 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       try {
         const response = await repository.create(transactionData);
         if (response) {
-          console.log("Transação criada com sucesso:", response);
           await get().fetchData();
         }
       } catch (err) {
-        console.error("Erro ao criar transação:", err);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao criar transação:", err);
+        }
       }
     }
   },
@@ -127,11 +144,12 @@ export const useStatementStore = create<StatementState>((set, get) => ({
       try {
         const response = await repository.update(id, payload);
         if (response) {
-          console.log("Transação editada com sucesso:", response);
           await get().fetchData();
         }
       } catch (err) {
-        console.error("Erro ao editar transação:", err);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao editar transação:", err);
+        }
       }
     }
   },
@@ -140,11 +158,12 @@ export const useStatementStore = create<StatementState>((set, get) => ({
     try {
       const response = await repository.delete(id);
       if (response) {
-        console.log("Transação deletada com sucesso:", response);
         await get().fetchData();
       }
     } catch (err) {
-      console.error("Erro ao deletar transação:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Erro ao deletar transação:", err);
+      }
     }
   },
 }));

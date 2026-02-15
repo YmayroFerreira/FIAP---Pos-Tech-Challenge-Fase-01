@@ -1,5 +1,5 @@
 import { TransactionType } from "@/modules/statement/domain/entities/Transaction";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useStatementStore } from "@/modules/statement/presentation/store/StatementUIStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 // DTOs
@@ -14,58 +14,68 @@ interface TransactionDTO {
   anexo?: string[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // Ajuste conforme env
-
+/**
+ * Hook para mutations de transações
+ * 
+ * SEGURANÇA:
+ * - Usa proxy seguro em /api/proxy/* 
+ * - Token é adicionado no servidor via cookie HttpOnly
+ * - Token NUNCA é exposto ao JavaScript
+ */
 export function useTransactionMutations() {
   const queryClient = useQueryClient();
-  const { getToken } = useAuth();
+  const { fetchData } = useStatementStore();
 
-  const getHeaders = () => ({
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
-  });
+  const refreshData = () => {
+    // Invalida React Query cache
+    queryClient.invalidateQueries({ queryKey: ["account"] });
+    // Atualiza o Zustand store
+    fetchData();
+  };
 
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionDTO) => {
-      const response = await fetch(`${API_URL}/account/transaction`, {
+      const response = await fetch("/api/proxy/account/transaction", {
         method: "POST",
-        headers: getHeaders(),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error("Falha ao criar transação");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 
   const updateTransaction = useMutation({
     mutationFn: async ({ id, ...data }: TransactionDTO) => {
-      const response = await fetch(`${API_URL}/account/transaction/${id}`, {
+      const response = await fetch(`/api/proxy/account/transaction/${id}`, {
         method: "PUT",
-        headers: getHeaders(),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error("Falha ao atualizar transação");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 
   const deleteTransaction = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${API_URL}/account/transaction/${id}`, {
+      const response = await fetch(`/api/proxy/account/transaction/${id}`, {
         method: "DELETE",
-        headers: getHeaders(),
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Falha ao deletar transação");
       return true;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["account"] });
+      refreshData();
     },
   });
 

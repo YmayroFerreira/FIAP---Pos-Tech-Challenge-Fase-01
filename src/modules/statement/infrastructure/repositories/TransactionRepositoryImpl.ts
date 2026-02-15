@@ -1,48 +1,52 @@
-
 import { Transaction } from "@/modules/statement/domain/entities/Transaction";
 import { ITransactionRepository } from '@/modules/statement/domain/repositories/ITransactionRepository';
-import { API_BASE_URL, authToken } from "@/shared/infrastructure/http/api-config";
 
+/**
+ * TransactionRepositoryImpl - Repositório com Proxy Seguro
+ * 
+ * SEGURANÇA:
+ * - Todas as chamadas passam pelo proxy em /api/proxy/*
+ * - O proxy adiciona o token do cookie HttpOnly no servidor
+ * - Token NUNCA é exposto ao JavaScript do cliente
+ */
 export class TransactionRepositoryImpl implements ITransactionRepository {
-  private async fetchAuthenticated(path: string, options: RequestInit = {}) {
-    if (!authToken) {
-      console.error("Erro: Token de autenticação não encontrado.");
-      return null;
-    }
-
-    const headers = {
-      ...options.headers,
-      Authorization: `Bearer ${authToken}`,
-      "Content-Type": "application/json",
-    };
-
+  /**
+   * Fetch via proxy seguro - token é adicionado no servidor
+   */
+  private async fetchViaProxy(path: string, options: RequestInit = {}) {
     try {
-      const response = await fetch(`${API_BASE_URL}${path}`, {
+      const response = await fetch(`/api/proxy${path}`, {
         ...options,
-        headers,
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
       });
       return response;
     } catch (error) {
-      console.error("Erro ao fazer fetch:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Erro ao fazer fetch:", error);
+      }
       return null;
     }
   }
 
   async getAccountData() {
-    const response = await this.fetchAuthenticated("/account");
+    const response = await this.fetchViaProxy("/account");
     return response ? response.json() : null;
   }
 
-  async create(data: any): Promise<Transaction | null> {
-    const response = await this.fetchAuthenticated("/account/transaction", {
+  async create(data: unknown): Promise<Transaction | null> {
+    const response = await this.fetchViaProxy("/account/transaction", {
       method: "POST",
       body: JSON.stringify(data),
     });
     return response ? response.json() : null;
   }
 
-  async update(id: string, data: any): Promise<Transaction | null> {
-    const response = await this.fetchAuthenticated(`/account/transaction/${id}`, {
+  async update(id: string, data: unknown): Promise<Transaction | null> {
+    const response = await this.fetchViaProxy(`/account/transaction/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
@@ -50,7 +54,7 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const response = await this.fetchAuthenticated(`/account/transaction/${id}`, {
+    const response = await this.fetchViaProxy(`/account/transaction/${id}`, {
       method: "DELETE",
     });
     return !!response;

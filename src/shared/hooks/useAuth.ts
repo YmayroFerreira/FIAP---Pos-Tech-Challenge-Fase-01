@@ -1,29 +1,59 @@
 import { useCallback } from "react";
 
+/**
+ * Hook de autenticação seguro
+ * 
+ * SEGURANÇA:
+ * - NÃO usa localStorage (vulnerável a XSS)
+ * - Token é gerenciado via cookies HttpOnly no servidor
+ * - Logout chama API para remover cookie
+ */
 export function useAuth() {
+  /**
+   * @deprecated Token não é mais acessível via JavaScript
+   * Use o proxy em /api/proxy/* que adiciona o token automaticamente
+   */
   const getToken = useCallback(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("authToken");
-    }
+    // Token agora é gerenciado via cookie HttpOnly - não acessível via JS
     return null;
   }, []);
 
-  const setToken = useCallback((token: string) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("authToken", token);
+  /**
+   * @deprecated Token é setado pelo servidor via cookie HttpOnly
+   */
+  const setToken = useCallback((_token: string) => {
+    // Token agora é setado pelo servidor via cookie HttpOnly
+    if (process.env.NODE_ENV === "development") {
+      console.warn("setToken está obsoleto. Token é gerenciado via cookies HttpOnly.");
     }
   }, []);
 
+  /**
+   * @deprecated Use logout() que chama a API
+   */
   const removeToken = useCallback(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("authToken");
-    }
+    // Token é removido via API /api/auth/logout
   }, []);
 
-  const logout = useCallback(() => {
-    removeToken();
-    window.location.href = "/homepage";
-  }, [removeToken]);
+  /**
+   * Logout seguro via API
+   * Remove o cookie HttpOnly no servidor
+   */
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Erro no logout:", error);
+      }
+    } finally {
+      const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
+      window.location.href = `${homepageUrl}/homepage`;
+    }
+  }, []);
 
   return { getToken, setToken, removeToken, logout };
 }

@@ -1,4 +1,11 @@
-import { API_BASE_URL, authToken } from "../../../../shared/infrastructure/http/api-config";
+/**
+ * Account Services - Proxy Seguro
+ * 
+ * SEGURANÇA:
+ * - Todas as chamadas passam pelo proxy em /api/proxy/*
+ * - O proxy adiciona o token do cookie HttpOnly no servidor
+ * - Token NUNCA é exposto ao JavaScript do cliente
+ */
 
 export interface createTransactionData {
   accountId: string;
@@ -12,40 +19,37 @@ export interface createTransactionData {
   description: string;
 }
 
-const fetchAuthenticated = async (path: string, options: RequestInit = {}) => {
-  if (!authToken) {
-    console.error(
-      "Erro: Token de autenticação não encontrado. Faça o login primeiro."
-    );
-    return null;
-  }
-
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${authToken}`,
-    "Content-Type": "application/json",
-  };
+/**
+ * Fetch via proxy seguro - token é adicionado no servidor
+ */
+const fetchViaProxy = async (path: string, options: RequestInit = {}) => {
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetch(`/api/proxy${path}`, {
       ...options,
-      headers,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     });
     return response;
   } catch (error) {
-    console.error("Erro ao fazer fetch:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Erro ao fazer fetch:", error);
+    }
     return null;
   }
 };
 
 export const getAccount = async () => {
-  const response = await fetchAuthenticated("/account");
+  const response = await fetchViaProxy("/account");
   return response ? response.json() : null;
 };
 
 export const createTransaction = async (
   transactionData: createTransactionData
 ) => {
-  const response = await fetchAuthenticated("/account/transaction", {
+  const response = await fetchViaProxy("/account/transaction", {
     method: "POST",
     body: JSON.stringify(transactionData),
   });
@@ -56,7 +60,7 @@ export const updateTransaction = async (
   id: string,
   transactionData: unknown
 ) => {
-  const response = await fetchAuthenticated(`/account/transaction/${id}`, {
+  const response = await fetchViaProxy(`/account/transaction/${id}`, {
     method: "PUT",
     body: JSON.stringify(transactionData),
   });
@@ -64,13 +68,13 @@ export const updateTransaction = async (
 };
 
 export const deleteTransaction = async (id: string) => {
-  const response = await fetchAuthenticated(`/account/transaction/${id}`, {
+  const response = await fetchViaProxy(`/account/transaction/${id}`, {
     method: "DELETE",
   });
   return response;
 };
 
 export const getStatement = async (accountId: string) => {
-  const response = await fetchAuthenticated(`/account/${accountId}/statement`);
+  const response = await fetchViaProxy(`/account/${accountId}/statement`);
   return response ? response.json() : null;
 };
