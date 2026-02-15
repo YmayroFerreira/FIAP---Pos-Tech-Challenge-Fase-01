@@ -1,4 +1,5 @@
 import { getAccount } from "@/modules/statement/infrastructure/api/accountApi";
+import { useAuth } from "@/shared/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -19,6 +20,7 @@ import { useEffect } from "react";
 
 export function useAccountDataWithCache() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   const query = useQuery({
     queryKey: ["account"],

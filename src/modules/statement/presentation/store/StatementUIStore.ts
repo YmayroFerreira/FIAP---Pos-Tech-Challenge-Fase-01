@@ -3,6 +3,7 @@
 
 import { TransactionRepositoryImpl } from "@/modules/statement/infrastructure/repositories/TransactionRepositoryImpl";
 import { create } from "zustand";
+// Em um cenário ideal, injetaríamos a interface, não a implementação concreta
 import {
   AccountInfo,
   Transaction,

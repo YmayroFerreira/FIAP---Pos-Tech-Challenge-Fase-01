@@ -17,7 +17,7 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
     try {
       const response = await fetch(`/api/proxy${path}`, {
         ...options,
-        credentials: "include", // Importante: envia cookies
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           ...options.headers,
