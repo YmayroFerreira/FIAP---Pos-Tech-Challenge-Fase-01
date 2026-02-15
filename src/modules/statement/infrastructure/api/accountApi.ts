@@ -26,7 +26,7 @@ const fetchViaProxy = async (path: string, options: RequestInit = {}) => {
   try {
     const response = await fetch(`/api/proxy${path}`, {
       ...options,
-      credentials: "include", // Importante: envia cookies
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         ...options.headers,

@@ -25,7 +25,7 @@ function AuthGuardContent({ children }: AuthGuardProps) {
         // Verifica autenticação via API (que lê o cookie HttpOnly no servidor)
         const response = await fetch("/api/auth/check", {
           method: "GET",
-          credentials: "include", // Importante: envia cookies
+          credentials: "include",
         });
 
         if (response.ok) {
