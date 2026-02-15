@@ -3,12 +3,7 @@ import { NextResponse } from "next/server";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-/**
- * Proxy seguro para a API de conta
- * - Obtém o token do cookie HttpOnly (não acessível ao JavaScript)
- * - Adiciona o token ao header Authorization
- * - Encaminha a requisição para a API externa
- */
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
