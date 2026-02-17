@@ -5,7 +5,25 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
-  
+
+  /**
+   * Rewrites para micro-frontend
+   * Proxeia as rotas /homepage/* para o app bytebank-homepage,
+   * mantendo tudo no mesmo domínio para compartilhar cookies
+   */
+  async rewrites() {
+    return [
+      {
+        source: "/homepage",
+        destination: `${process.env.NEXT_PUBLIC_HOMEPAGE_URL}/homepage`,
+      },
+      {
+        source: "/homepage/:path*",
+        destination: `${process.env.NEXT_PUBLIC_HOMEPAGE_URL}/homepage/:path*`,
+      },
+    ];
+  },
+
   /**
    * Headers de segurança
    * Protegem contra diversos tipos de ataques web

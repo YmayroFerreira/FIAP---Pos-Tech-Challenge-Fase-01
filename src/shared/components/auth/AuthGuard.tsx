@@ -37,16 +37,14 @@ function AuthGuardContent({ children }: AuthGuardProps) {
           }
         }
 
-        // Não autenticado - redireciona para login
-        const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
-        window.location.href = `${homepageUrl}/homepage`;
+        // Não autenticado - redireciona para login (mesmo domínio via rewrite)
+        window.location.href = "/homepage";
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
           console.error("Erro ao verificar autenticação:", error);
         }
-        // Em caso de erro, redireciona para login por segurança
-        const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
-        window.location.href = `${homepageUrl}/homepage`;
+        // Em caso de erro, redireciona para login por segurança (mesmo domínio via rewrite)
+        window.location.href = "/homepage";
       }
     };
 

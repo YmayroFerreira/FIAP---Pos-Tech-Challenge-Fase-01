@@ -51,8 +51,8 @@ export function useAuth() {
         console.error("Erro no logout:", error);
       }
     } finally {
-      const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
-      window.location.href = `${homepageUrl}/homepage`;
+      // Redireciona para login no mesmo domínio (micro-frontend via rewrite)
+      window.location.href = "/homepage";
     }
   }, []);
 

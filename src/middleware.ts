@@ -47,9 +47,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Se não tem token e não é rota pública, redireciona para login
+  // Usa path relativo para manter o usuário no mesmo domínio (micro-frontend)
   if (!token && !isPublicPath) {
-    const homepageUrl = process.env.NEXT_PUBLIC_HOMEPAGE_URL || "http://localhost:3001";
-    return NextResponse.redirect(`${homepageUrl}/homepage`);
+    const url = request.nextUrl.clone();
+    url.pathname = "/homepage";
+    return NextResponse.redirect(url);
   }
 
   // Cria a resposta
