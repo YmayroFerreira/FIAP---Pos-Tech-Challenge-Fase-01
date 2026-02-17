@@ -46,15 +46,6 @@ interface StatementState {
   calculateBalance: (txns: Transaction[]) => number;
 }
 
-/**
- * StatementStore - Gerenciamento de estado seguro
- * 
- * SEGURANÇA:
- * - NÃO usa localStorage para tokens
- * - Todas as chamadas à API passam pelo repositório com proxy seguro
- * - O proxy adiciona o token do cookie HttpOnly no servidor
- * - Token nunca é exposto ao JavaScript do cliente
- */
 const repository = new TransactionRepositoryImpl();
 
 export const useStatementStore = create<StatementState>((set, get) => ({
