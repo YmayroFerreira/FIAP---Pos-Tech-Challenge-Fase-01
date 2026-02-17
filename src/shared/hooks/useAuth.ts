@@ -21,6 +21,7 @@ export function useAuth() {
   /**
    * @deprecated Token é setado pelo servidor via cookie HttpOnly
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setToken = useCallback((_token: string) => {
     // Token agora é setado pelo servidor via cookie HttpOnly
     if (process.env.NODE_ENV === "development") {

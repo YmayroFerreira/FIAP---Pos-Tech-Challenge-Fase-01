@@ -19,6 +19,7 @@ export const authToken: string | null = null;
  * @deprecated Não é mais necessário setar o token manualmente.
  * O token é gerenciado via cookies HttpOnly pelo servidor.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const setAuthToken = (_token: string): void => {
   if (process.env.NODE_ENV === "development") {
     console.warn(

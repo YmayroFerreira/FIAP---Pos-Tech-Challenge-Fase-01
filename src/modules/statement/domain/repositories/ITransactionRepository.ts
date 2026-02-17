@@ -10,8 +10,8 @@ export interface CreateTransactionDTO {
 }
 
 export interface ITransactionRepository {
-  getAccountData(): Promise<any>;
+  getAccountData(): Promise<unknown>;
   create(data: CreateTransactionDTO): Promise<Transaction | null>;
-  update(id: string, data: any): Promise<Transaction | null>;
+  update(id: string, data: Partial<CreateTransactionDTO>): Promise<Transaction | null>;
   delete(id: string): Promise<boolean>;
 }
